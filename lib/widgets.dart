@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_photos_test/pages/GalleryPage.dart';
 import 'package:google_photos_test/services/photo_service.dart';
 
 class SearchPicturesButton extends StatelessWidget {
@@ -69,6 +70,23 @@ class ReturnImgUrlsButton extends StatelessWidget {
   }
 }
 
+class GetImageByIdButton extends StatelessWidget {
+  const GetImageByIdButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ElevatedButton(
+        onPressed: () {
+          PhotoService().getImageById('AEHElZygHFvj4rpX-EOfvGyClCEOJyCWC_Yg4AwqVr5ogI-QVj1_gqgQxoptlwlq15epnnQbkIAp4Rsg4oy3xIEu9N6fKXzitw');
+        },
+        child: const Text('Get Image using ID'),
+      ),
+    );
+  }
+}
+
 class NavBar extends StatefulWidget {
   const NavBar({super.key});
 
@@ -83,6 +101,13 @@ class _NavBarState extends State<NavBar> {
     setState(() {
       _selectedIndex = index;
     });
+
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => GalleryPage()),
+      );
+    }
   }
 
   @override

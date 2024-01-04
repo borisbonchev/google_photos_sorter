@@ -134,7 +134,7 @@ class PhotoService {
     var requestBody = jsonEncode({
       'pageSize': '100',
       'albumId':
-          "AEHElZz2e8qtd1zMwZtzy2iZQzLBkbrLcgmoXEuOVbrSSmPGEA8Fluua0BNde8wYyo9ZpCC_lK77",
+          "AEHElZz6XH763_yIefG6hvxcEpGemuuYNItkcHxI9pmXcW_IxiVvfD0QwEDzmJgluD-NQpQTWA9j",
     });
 
     var tokenResult = await authClient.post(
@@ -154,5 +154,15 @@ class PhotoService {
       print('Failed to get media items: ${tokenResult.statusCode}');
       return [];
     }
+  }
+
+  getImageById(String id) async {
+    AuthClient authClient = await obtainAuthenticatedClient();
+
+    var tokenResult = await authClient.get(
+      Uri.parse('https://photoslibrary.googleapis.com/v1/mediaItems/$id')
+    );
+
+    print(tokenResult.body);
   }
 }

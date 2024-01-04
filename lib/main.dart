@@ -37,6 +37,7 @@ class HomePage extends StatelessWidget {
             FindAlbumByIdButton(),
             ReturnAllAlbumIdsButton(),
             ReturnImgUrlsButton(),
+            GetImageByIdButton(),
           ],
         ),
       ),
