@@ -23,7 +23,7 @@ class GalleryPage extends StatelessWidget {
           );
         } else {
           List<String> photos = snapshot.data ?? [];
-          
+
           return Scaffold(
             appBar: AppBar(title: const Text('Gallery')),
             body: GridView.builder(
