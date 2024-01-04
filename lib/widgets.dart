@@ -71,7 +71,7 @@ class _NavBarState extends State<NavBar> {
     if (index == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => GalleryPage()),
+        MaterialPageRoute(builder: (context) => const GalleryPage()),
       );
     }
   }
@@ -96,6 +96,23 @@ class _NavBarState extends State<NavBar> {
       currentIndex: _selectedIndex,
       selectedItemColor: Colors.amber[800],
       onTap: _onItemTapped,
+    );
+  }
+}
+
+class TestButton extends StatelessWidget {
+  const TestButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ElevatedButton(
+        onPressed: () {
+          PhotoService().getAllPhotos();
+        },
+        child: const Text('Test'),
+      ),
     );
   }
 }
