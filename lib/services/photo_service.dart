@@ -28,47 +28,12 @@ class PhotoService {
     }
   }
 
-  // Future<AuthClient> authenticate() async {
-  //   return await clientViaUserConsent(ClientId(clientId), _scopes, prompt);
-  // }
+  // #1 Return all photos from Google Photos
+  // returnType: List<String> photoIds
 
-  pictureSearch() async {
-    AuthClient authClient = await obtainAuthenticatedClient();
 
-    var requestBody = jsonEncode({
-      "albumId":
-          "AEHElZz2e8qtd1zMwZtzy2iZQzLBkbrLcgmoXEuOVbrSSmPGEA8Fluua0BNde8wYyo9ZpCC_lK77",
-    });
-
-    var tokenResult = await authClient.post(
-        Uri.parse('https://photoslibrary.googleapis.com/v1/mediaItems:search'),
-        body: requestBody);
-
-    if (tokenResult.statusCode != 200) {
-      print('Failed to get upload token: ${tokenResult.statusCode}');
-      return;
-    }
-
-    print("Success");
-    print("");
-    print(tokenResult.body);
-
-    String jsonResponse = tokenResult.body;
-    Map<String, dynamic> data = jsonDecode(jsonResponse);
-    List<dynamic> filterByFilename = (data['mediaItems'] as List<dynamic>)
-        .map((photo) => photo['filename'])
-        .toList();
-
-    List<dynamic> filterByNoAlbum = (data['mediaItems'] as List<dynamic>)
-        .map((photo) => photo['filename'])
-        .toList();
-
-    print(filterByFilename);
-
-    var albumIds = await getAlbumIds();
-    print(albumIds);
-  }
-
+  // #2 Return all the albumIds from Google Photos
+  // returnType: List<String> albumIds
   Future<List<String>> getAlbumIds() async {
     AuthClient authClient = await obtainAuthenticatedClient();
     var response = await authClient.get(
@@ -88,9 +53,11 @@ class PhotoService {
     return albumIds;
   }
 
-  getAlbumById() async {
-    String albumId =
-        "AEHElZz2e8qtd1zMwZtzy2iZQzLBkbrLcgmoXEuOVbrSSmPGEA8Fluua0BNde8wYyo9ZpCC_lK77";
+  // #3 Go through the albums and remember all the photos that already belong to them
+  // For each album in the list of albums, if(photoId.exists(photoIdList))
+  //                                         photoIdList.remove(photoId);
+  // returnType: List<String> filteredPhotoIdList
+  Future<List<String>> filterPhotoIds(List<String> albumIds, List<String> photoIds) async {
     AuthClient authClient = await obtainAuthenticatedClient();
     var response = await authClient.get(
       Uri.parse('https://photoslibrary.googleapis.com/v1/albums'),
@@ -101,68 +68,39 @@ class PhotoService {
       return [];
     }
 
-    print(response.body);
+    var data = jsonDecode(response.body);
+    var albums = data['albums'] as List;
+    var albumIds = albums.map((album) => album['id'] as String).toList();
+
+    print(albumIds);
+    return albumIds;
   }
 
-  Future<void> searchMediaItems() async {
+
+  // #4 
+
+
+
+
+  // Return all the image baseURLs from Google Photos
+  Future<List<String>> returnAllImageUrls() async {
     AuthClient authClient = await obtainAuthenticatedClient();
-    var requestBody = jsonEncode({
-      'pageSize': '100',
-      'albumId':
-          "AEHElZz6XH763_yIefG6hvxcEpGemuuYNItkcHxI9pmXcW_IxiVvfD0QwEDzmJgluD-NQpQTWA9j",
-    });
 
     var tokenResult = await authClient.post(
-        Uri.parse('https://photoslibrary.googleapis.com/v1/mediaItems:search'),
-        body: requestBody);
+        Uri.parse('https://photoslibrary.googleapis.com/v1/mediaItems:search'));
 
     if (tokenResult.statusCode == 200) {
       String jsonResponse = tokenResult.body;
       Map<String, dynamic> data = jsonDecode(jsonResponse);
-      List<dynamic> filenames = (data['mediaItems'] as List<dynamic>)
-          .map((photo) => photo['filename'])
+      List<dynamic> filterByBaseUrl = (data['mediaItems'] as List<dynamic>)
+          .map((photo) => photo['baseUrl'])
           .toList();
 
-      print(filenames);
+      print(filterByBaseUrl);
+      return filterByBaseUrl.cast<String>(); // Return only Strings
     } else {
       print('Failed with status code: ${tokenResult.statusCode}');
+      throw Exception('Failed to fetch image URLs');
     }
-  }
-
-  Future<List<String>> returnImgUrls() async {
-    AuthClient authClient = await obtainAuthenticatedClient();
-    var requestBody = jsonEncode({
-      'pageSize': '100',
-      'albumId':
-          "AEHElZz6XH763_yIefG6hvxcEpGemuuYNItkcHxI9pmXcW_IxiVvfD0QwEDzmJgluD-NQpQTWA9j",
-    });
-
-    var tokenResult = await authClient.post(
-        Uri.parse('https://photoslibrary.googleapis.com/v1/mediaItems:search'),
-        body: requestBody);
-
-    if (tokenResult.statusCode == 200) {
-      String jsonResponse = tokenResult.body;
-      Map<String, dynamic> data = jsonDecode(jsonResponse);
-      List<String> imageUrls = (data['mediaItems'] as List<dynamic>)
-          .map((photo) => photo['baseUrl'] as String)
-          .toList();
-
-      print(imageUrls);
-      return imageUrls;
-    } else {
-      print('Failed to get media items: ${tokenResult.statusCode}');
-      return [];
-    }
-  }
-
-  getImageById(String id) async {
-    AuthClient authClient = await obtainAuthenticatedClient();
-
-    var tokenResult = await authClient.get(
-      Uri.parse('https://photoslibrary.googleapis.com/v1/mediaItems/$id')
-    );
-
-    print(tokenResult.body);
   }
 }

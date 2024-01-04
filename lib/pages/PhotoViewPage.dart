@@ -8,10 +8,10 @@ class PhotoViewPage extends StatelessWidget {
   final int index;
 
   const PhotoViewPage({
-    Key? key,
+    super.key,
     required this.photos,
     required this.index,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
