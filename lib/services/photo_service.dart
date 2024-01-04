@@ -45,7 +45,7 @@ class PhotoService {
     var photos = data['mediaItems'] as List;
     var photoIds = photos.map((photo) => photo['id'] as String).toList();
 
-    print(photoIds);
+    // print(photoIds);
     return photoIds;
   }
 
@@ -66,7 +66,7 @@ class PhotoService {
     var albums = data['albums'] as List;
     var albumIds = albums.map((album) => album['id'] as String).toList();
 
-    print(albumIds);
+    // print(albumIds);
     return albumIds;
   }
 
@@ -74,30 +74,44 @@ class PhotoService {
   // For each album in the list of albums, if(photoId.exists(photoIdList))
   //                                         photoIdList.remove(photoId);
   // returnType: List<String> filteredPhotoIdList
-  Future<List<String>> filterPhotoIds(List<String> albumIds, List<String> photoIds) async {
+  Future<List<String>> filterPhotoIds() async {
     AuthClient authClient = await obtainAuthenticatedClient();
-    var response = await authClient.get(
-      Uri.parse('https://photoslibrary.googleapis.com/v1/albums'),
-    );
+    List<String> photoList = await getAllPhotos();
+    List<String> albumList = await getAlbumIds();
 
-    if (response.statusCode != 200) {
-      print('Failed to get albums: ${response.statusCode}');
-      return [];
+    int count = 0;
+    for (String albumId in albumList) {
+      String jsonBody = jsonEncode({
+        "albumId": albumId,
+        "pageSize": 100,
+      });
+
+      var response = await authClient.post(
+          Uri.parse(
+              'https://photoslibrary.googleapis.com/v1/mediaItems:search'),
+          body: jsonBody);
+
+      if (response.statusCode != 200) {
+        print('Failed to get albums: ${response.statusCode}');
+      }
+
+      var data = jsonDecode(response.body);
+      var photos = data['mediaItems'] as List;
+      var photoIds = photos.map((photo) => photo['id'] as String).toList();
+
+      print('Album $count');
+      print('PhotoIds:');
+      print(photoIds);
+
+      // Remove photoIds that exist in photoList
+      photoList.removeWhere((photoId) => photoIds.contains(photoId));
+      count++;
     }
 
-    var data = jsonDecode(response.body);
-    var albums = data['albums'] as List;
-    var albumIds = albums.map((album) => album['id'] as String).toList();
-
-    print(albumIds);
-    return albumIds;
+    print('Filtered photoIds:');
+    print(photoList);
+    return photoList;
   }
-
-
-  // #4 
-
-
-
 
   // Return all the image baseURLs from Google Photos
   Future<List<String>> returnAllImageUrls() async {
