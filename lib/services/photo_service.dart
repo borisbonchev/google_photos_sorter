@@ -30,7 +30,24 @@ class PhotoService {
 
   // #1 Return all photos from Google Photos
   // returnType: List<String> photoIds
+  Future<List<String>> getAllPhotos() async {
+    AuthClient authClient = await obtainAuthenticatedClient();
+    var response = await authClient.get(
+      Uri.parse('https://photoslibrary.googleapis.com/v1/mediaItems'),
+    );
 
+    if (response.statusCode != 200) {
+      print('Failed to get photos: ${response.statusCode}');
+      return [];
+    }
+
+    var data = jsonDecode(response.body);
+    var photos = data['mediaItems'] as List;
+    var photoIds = photos.map((photo) => photo['id'] as String).toList();
+
+    print(photoIds);
+    return photoIds;
+  }
 
   // #2 Return all the albumIds from Google Photos
   // returnType: List<String> albumIds
