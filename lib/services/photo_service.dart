@@ -2,11 +2,14 @@ import 'dart:convert';
 
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:googleapis_auth/auth_browser.dart';
+import 'package:logging/logging.dart';
 
 class PhotoService {
   final _scopes = ['https://www.googleapis.com/auth/photoslibrary'];
-  final clientId =
-      '672368799891-jbj743883luhl3qtp2qt8fsr0akdltv7.apps.googleusercontent.com';
+  final _clientId = ClientId(
+      '672368799891-jbj743883luhl3qtp2qt8fsr0akdltv7.apps.googleusercontent.com',
+      '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');
+  final _logger = Logger('PhotoService');
 
   void prompt(String url) {
     print("Please go to the following URL and grant access:");
@@ -17,7 +20,7 @@ class PhotoService {
 
   Future<AuthClient> obtainAuthenticatedClient() async {
     final flow = await createImplicitBrowserFlow(
-      ClientId(clientId),
+      _clientId,
       _scopes,
     );
 
@@ -79,7 +82,7 @@ class PhotoService {
     List<String> photoList = await getAllPhotos();
     List<String> albumList = await getAlbumIds();
 
-    int count = 0;
+    int count = 1;
     for (String albumId in albumList) {
       String jsonBody = jsonEncode({
         "albumId": albumId,
@@ -92,24 +95,24 @@ class PhotoService {
           body: jsonBody);
 
       if (response.statusCode != 200) {
-        print('Failed to get albums: ${response.statusCode}');
+        _logger.warning('Failed to get albums: ${response.statusCode}');
       }
 
       var data = jsonDecode(response.body);
       var photos = data['mediaItems'] as List;
       var photoIds = photos.map((photo) => photo['id'] as String).toList();
 
-      print('Album $count');
-      print('PhotoIds:');
-      print(photoIds);
+      _logger.info('Album $count');
+      _logger.info('PhotoIds:');
+      _logger.info(photoIds);
 
       // Remove photoIds that exist in photoList
       photoList.removeWhere((photoId) => photoIds.contains(photoId));
       count++;
     }
 
-    print('Filtered photoIds:');
-    print(photoList);
+    _logger.info('Filtered photoIds:');
+    _logger.info(photoList);
     return photoList;
   }
 
