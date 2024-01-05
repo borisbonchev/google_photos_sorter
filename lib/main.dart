@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_photos_test/widgets.dart';
+import 'package:google_photos_test/pages/navbar/NavBar.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,10 +33,6 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ReturnAllAlbumIdsButton(),
-            ReturnImgUrlsButton(),
-            GetImageByIdButton(),
-            TestButton(),
           ],
         ),
       ),
