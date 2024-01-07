@@ -1,46 +1,23 @@
 import 'dart:convert';
 
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:google_photos_test/services/authentication.dart';
 import 'package:googleapis_auth/auth_browser.dart';
 import 'package:logging/logging.dart';
 
-class PhotoService {
-  final _scopes = ['https://www.googleapis.com/auth/photoslibrary'];
-  final _clientId = ClientId(
-      '672368799891-jbj743883luhl3qtp2qt8fsr0akdltv7.apps.googleusercontent.com',
-      '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');
-  final _logger = Logger('PhotoService');
-
-  void prompt(String url) {
-    print("Please go to the following URL and grant access:");
-    print("  => $url");
-    print("");
-    launchUrlString(url);
-  }
-
-  Future<AuthClient> obtainAuthenticatedClient() async {
-    final flow = await createImplicitBrowserFlow(
-      _clientId,
-      _scopes,
-    );
-
-    try {
-      return await flow.clientViaUserConsent();
-    } finally {
-      flow.close();
-    }
-  }
+class ApiRequests {
+  final AuthService _authService = AuthService();
+  final _logger = Logger('ApiRequests');
 
   // #1 Return all photos from Google Photos
   // returnType: List<String> photoIds
   Future<List<String>> getAllPhotos() async {
-    AuthClient authClient = await obtainAuthenticatedClient();
+    AuthClient authClient = await _authService.obtainAuthenticatedClient();
     var response = await authClient.get(
       Uri.parse('https://photoslibrary.googleapis.com/v1/mediaItems'),
     );
 
     if (response.statusCode != 200) {
-      print('Failed to get photos: ${response.statusCode}');
+      _logger.warning('Failed to get photos: ${response.statusCode}');
       return [];
     }
 
@@ -55,7 +32,7 @@ class PhotoService {
   // #2 Return all the albumIds from Google Photos
   // returnType: List<String> albumIds
   Future<List<String>> getAlbumIds() async {
-    AuthClient authClient = await obtainAuthenticatedClient();
+    AuthClient authClient = await _authService.obtainAuthenticatedClient();
     var response = await authClient.get(
       Uri.parse('https://photoslibrary.googleapis.com/v1/albums'),
     );
@@ -78,7 +55,7 @@ class PhotoService {
   //                                         photoIdList.remove(photoId);
   // returnType: List<String> filteredPhotoIdList
   Future<List<String>> filterPhotos() async {
-    AuthClient authClient = await obtainAuthenticatedClient();
+    AuthClient authClient = await _authService.obtainAuthenticatedClient();
     List<String> photoList = await getAllPhotos();
     List<String> albumList = await getAlbumIds();
 
@@ -120,7 +97,7 @@ class PhotoService {
   // param: List<String> imageIds
   // returnType: Future<List<String>>
   Future<List<String>> returnImageUrls(List<String> imageIds) async {
-    AuthClient authClient = await obtainAuthenticatedClient();
+    AuthClient authClient = await _authService.obtainAuthenticatedClient();
 
     var tokenResult = await authClient.post(
         Uri.parse('https://photoslibrary.googleapis.com/v1/mediaItems:search'));
@@ -154,7 +131,7 @@ class PhotoService {
 
   // Used in Gallery: Returns the baseUrls of all photos
   Future<List<String>> returnAllImageUrls() async {
-    AuthClient authClient = await obtainAuthenticatedClient();
+    AuthClient authClient = await _authService.obtainAuthenticatedClient();
 
     var tokenResult = await authClient.post(
         Uri.parse('https://photoslibrary.googleapis.com/v1/mediaItems:search'));
