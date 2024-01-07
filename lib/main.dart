@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_photos_test/pages/AlbumPage.dart';
-import 'package:google_photos_test/pages/DevPage.dart';
-import 'package:google_photos_test/pages/GalleryPage.dart';
 import 'package:google_photos_test/pages/navbar/NavBar.dart';
 
 void main() {
@@ -32,27 +29,12 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Home Page'),
       ),
-      body: ValueListenableBuilder<int>(
-        valueListenable: selectedIndex,
-        builder: (context, value, child) {
-          return PageView(
-            controller: PageController(initialPage: value),
-            onPageChanged: (index) {
-              selectedIndex.value = index;
-            },
-            children: const <Widget>[
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[],
-                ),
-              ),
-              GalleryPage(),
-              AlbumPage(),
-              DevPage(),
-            ],
-          );
-        },
+      body: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+          ],
+        ),
       ),
       bottomNavigationBar: const NavBar(),
     );
