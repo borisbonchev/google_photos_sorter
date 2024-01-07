@@ -43,59 +43,67 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        ElevatedButton(
-          onPressed: selectAll,
-          child: Text(selectedIndices.length == widget.imageUrls.length ? 'Deselect All' : 'Select All'),
+        Padding(
+          padding: const EdgeInsets.only(right: 16.0, bottom: 16.0),
+          child: ElevatedButton(
+            onPressed: selectAll,
+            child: Text(selectedIndices.length == widget.imageUrls.length ? 'Deselect All' : 'Select All'),
+          ),
         ),
         Expanded(
-          child: GridView.builder(
-            itemCount: widget.imageUrls.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 5,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 100,
-            ),
-            itemBuilder: (context, index) {
-              final isSelected = selectedIndices.contains(index);
-              return MouseRegion(
-                onEnter: (_) {
-                  setState(() {
-                    hoveredIndex = index;
-                  });
-                },
-                onExit: (_) {
-                  setState(() {
-                    hoveredIndex = null;
-                  });
-                },
-                child: GestureDetector(
-                  onTap: () {
-                    toggleSelection(index);
+          child: Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: GridView.builder(
+              itemCount: widget.imageUrls.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 5,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 100,
+              ),
+              itemBuilder: (context, index) {
+                final isSelected = selectedIndices.contains(index);
+                return MouseRegion(
+                  onEnter: (_) {
+                    setState(() {
+                      hoveredIndex = index;
+                    });
                   },
-                  child: Stack(
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 2,
-                        child: Image.network(
-                          widget.imageUrls[index],
-                          fit: BoxFit.cover,
-                          color: hoveredIndex == index ? Colors.black.withOpacity(0.5) : null,
-                          colorBlendMode: hoveredIndex == index ? BlendMode.darken : null,
+                  onExit: (_) {
+                    setState(() {
+                      hoveredIndex = null;
+                    });
+                  },
+                  child: GestureDetector(
+                    onTap: () {
+                      toggleSelection(index);
+                    },
+                    child: Stack(
+                      children: [
+                        SizedBox(
+                          width: 200, // Fixed width for consistent image sizes
+                          height: 200, // Fixed height for consistent image sizes
+                          child: Image.network(
+                            widget.imageUrls[index],
+                            fit: BoxFit.cover,
+                            color: hoveredIndex == index ? Colors.black.withOpacity(0.5) : null,
+                            colorBlendMode: hoveredIndex == index ? BlendMode.darken : null,
+                          ),
                         ),
-                      ),
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: CustomCheckBox(
-                          isSelected: isSelected,
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: CustomCheckBox(
+                            isSelected: isSelected,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ],

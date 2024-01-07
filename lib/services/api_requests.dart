@@ -12,7 +12,7 @@ class ApiRequests {
     return await _authService.obtainAuthenticatedClient();
   }
 
-  // #1 Return all photos from Google Photos
+  // Return all photos from Google Photos
   // returnType: List<String> photoIds
   Future<List<String>> getAllPhotos() async {
     AuthClient authClient = await getAuthClient();
@@ -33,8 +33,7 @@ class ApiRequests {
     return photoIds;
   }
 
-  // #2 Return all the albumIds from Google Photos
-  // returnType: List<String> albumIds
+  // Return all the albumIds from Google Photos
   Future<List<String>> getAlbumIds() async {
     AuthClient authClient = await getAuthClient();
     var response = await authClient.get(
@@ -42,8 +41,7 @@ class ApiRequests {
     );
 
     if (response.statusCode != 200) {
-      print('Failed to get albums: ${response.statusCode}');
-      return [];
+      _logger.warning('Failed to get albums: ${response.statusCode}');
     }
 
     var data = jsonDecode(response.body);
@@ -54,10 +52,8 @@ class ApiRequests {
     return albumIds;
   }
 
-  // #3 Go through the albums and remember all the photos that already belong to them
-  // For each album in the list of albums, if(photoId.exists(photoIdList))
-  //                                         photoIdList.remove(photoId);
-  // returnType: List<String> filteredPhotoIdList
+  // Takes all photos => filters out photos that are in albums => returns imageUrls
+  // return: Filtered iamgeUrls of photos that are not in any album
   Future<List<String>> filterPhotos() async {
     AuthClient authClient = await getAuthClient();
     List<String> photoList = await getAllPhotos();
@@ -98,8 +94,7 @@ class ApiRequests {
   }
 
   // Return the baseUrls of photos based on a list of imageIds
-  // param: List<String> imageIds
-  // returnType: Future<List<String>>
+  // return: List of urls of images                
   Future<List<String>> returnImageUrls(List<String> imageIds) async {
     AuthClient authClient = await getAuthClient();
 
