@@ -16,8 +16,6 @@ class DevPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             ReturnAllAlbumIdsButton(),
-            ReturnImgUrlsButton(),
-            GetImageByIdButton(),
             TestButton(),
           ],
         ),
