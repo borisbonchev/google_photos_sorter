@@ -1,7 +1,8 @@
 import "package:cached_network_image/cached_network_image.dart";
 import "package:flutter/material.dart";
-import "package:google_photos_test/pages/PhotoViewPage.dart";
+import 'package:google_photos_test/pages/photoview_page.dart';
 import 'package:google_photos_test/services/img_requests.dart';
+import "package:google_photos_test/services/logging.dart";
 
 class GalleryPage extends StatelessWidget {
   const GalleryPage({super.key});
@@ -56,7 +57,7 @@ class GalleryPage extends StatelessWidget {
                         placeholder: (context, url) =>
                             Container(color: Colors.grey),
                         errorWidget: (context, url, error) {
-                          print('Error loading image at index $index: $error');
+                          logger.warning('Error loading image at index $index: $error');
                           return Container(color: Colors.red.shade400);
                         },
                       ),
