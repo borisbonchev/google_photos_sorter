@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_photos_test/pages/navbar/NavBar.dart';
-import 'package:google_photos_test/services/album_requests.dart';
 import 'package:google_photos_test/services/logging.dart';
-import 'package:google_photos_test/widgets/create_album_popup.dart';
 import 'package:google_photos_test/widgets/unsorted_image_gallery.dart';
 import 'package:google_photos_test/services/img_requests.dart';
 
@@ -34,10 +32,8 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  Future<List<String>>? imageUrlsFuture;
   final PhotoRequests _photoService = PhotoRequests();
-  final AlbumRequests _albumService = AlbumRequests();
-  final AlbumDialog _albumDialog = AlbumDialog();
+  Future<List<String>>? imageUrlsFuture;
   bool showImageGallery = false;
 
   Future<List<String>> fetchImageUrls() async {
@@ -51,10 +47,6 @@ class HomePageState extends State<HomePage> {
     });
     // Refetch image URLs
     imageUrlsFuture = fetchImageUrls();
-  }
-
-  void _showCreateAlbumDialog() {
-    _albumDialog.showCreateAlbumDialog(context, _albumService, refreshImages);
   }
 
   @override
@@ -88,16 +80,7 @@ class HomePageState extends State<HomePage> {
                       ),
                       if (showImageGallery)
                         Padding(
-                          padding:
-                              const EdgeInsets.only(top: 8.0, bottom: 4.0),
-                          child: ElevatedButton(
-                            onPressed: _showCreateAlbumDialog,
-                            child: const Text('Create New Album'),
-                          ),
-                        ),
-                      if (showImageGallery)
-                        Padding(
-                          padding: const EdgeInsets.all(4.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: ElevatedButton(
                             onPressed: refreshImages,
                             child: const Text('Refresh Images'),

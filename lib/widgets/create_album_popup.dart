@@ -6,7 +6,7 @@ class AlbumDialog {
   final _logger = Logger('AlbumDialog');
 
   void showCreateAlbumDialog(BuildContext context,
-      AlbumRequests albumService, Function refreshImages) {
+      AlbumRequests albumService) {
     String albumName = '';
     showDialog(
       context: context,
@@ -27,7 +27,7 @@ class AlbumDialog {
                   try {
                     await albumService.createAlbum(albumName);
                     // Update imageUrlsFuture to fetch new images after album creation
-                    refreshImages();
+                    // refreshImages();
                     _logger.info('Album created: $albumName');
                   } catch (e) {
                     _logger.warning('Error creating album: $e');

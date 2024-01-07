@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:google_photos_test/services/album_requests.dart';
+import 'package:google_photos_test/widgets/create_album_popup.dart';
 import 'package:google_photos_test/widgets/custom_checkbox.dart';
 
 class UnsortedImagesGallery extends StatefulWidget {
   final List<String> imageUrls;
 
-  const UnsortedImagesGallery({super.key, required this.imageUrls});
+  const UnsortedImagesGallery({Key? key, required this.imageUrls})
+      : super(key: key);
 
   @override
   UnsortedImagesGalleryState createState() => UnsortedImagesGalleryState();
 }
 
 class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
+  final AlbumRequests _albumService = AlbumRequests();
+  final AlbumDialog _albumDialog = AlbumDialog();
   late List<int> selectedIndices;
   int? hoveredIndex;
 
@@ -35,9 +40,14 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
       if (selectedIndices.length == widget.imageUrls.length) {
         selectedIndices.clear();
       } else {
-        selectedIndices = List.generate(widget.imageUrls.length, (index) => index);
+        selectedIndices =
+            List.generate(widget.imageUrls.length, (index) => index);
       }
     });
+  }
+
+  void _showCreateAlbumDialog() {
+    _albumDialog.showCreateAlbumDialog(context, _albumService);
   }
 
   @override
@@ -46,10 +56,21 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Padding(
-          padding: const EdgeInsets.only(right: 16.0, bottom: 16.0),
-          child: ElevatedButton(
-            onPressed: selectAll,
-            child: Text(selectedIndices.length == widget.imageUrls.length ? 'Deselect All' : 'Select All'),
+          padding: const EdgeInsets.only(bottom: 12.0, left: 4.0, right: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                onPressed: _showCreateAlbumDialog,
+                child: const Text('Create New Album'),
+              ),
+              ElevatedButton(
+                onPressed: selectAll,
+                child: Text(selectedIndices.length == widget.imageUrls.length
+                    ? 'Deselect All'
+                    : 'Select All'),
+              ),
+            ],
           ),
         ),
         Expanded(
@@ -82,13 +103,16 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
                     child: Stack(
                       children: [
                         SizedBox(
-                          width: 200, // Fixed width for consistent image sizes
-                          height: 200, // Fixed height for consistent image sizes
+                          width: 200,
+                          height: 200,
                           child: Image.network(
                             widget.imageUrls[index],
                             fit: BoxFit.cover,
-                            color: hoveredIndex == index ? Colors.black.withOpacity(0.5) : null,
-                            colorBlendMode: hoveredIndex == index ? BlendMode.darken : null,
+                            color: hoveredIndex == index
+                                ? Colors.black.withOpacity(0.5)
+                                : null,
+                            colorBlendMode:
+                                hoveredIndex == index ? BlendMode.darken : null,
                           ),
                         ),
                         Positioned(
