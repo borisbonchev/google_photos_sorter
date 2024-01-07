@@ -8,10 +8,14 @@ class ApiRequests {
   final AuthService _authService = AuthService();
   final _logger = Logger('ApiRequests');
 
+  Future<AuthClient> getAuthClient() async {
+    return await _authService.obtainAuthenticatedClient();
+  }
+
   // #1 Return all photos from Google Photos
   // returnType: List<String> photoIds
   Future<List<String>> getAllPhotos() async {
-    AuthClient authClient = await _authService.obtainAuthenticatedClient();
+    AuthClient authClient = await getAuthClient();
     var response = await authClient.get(
       Uri.parse('https://photoslibrary.googleapis.com/v1/mediaItems'),
     );
@@ -32,7 +36,7 @@ class ApiRequests {
   // #2 Return all the albumIds from Google Photos
   // returnType: List<String> albumIds
   Future<List<String>> getAlbumIds() async {
-    AuthClient authClient = await _authService.obtainAuthenticatedClient();
+    AuthClient authClient = await getAuthClient();
     var response = await authClient.get(
       Uri.parse('https://photoslibrary.googleapis.com/v1/albums'),
     );
@@ -55,7 +59,7 @@ class ApiRequests {
   //                                         photoIdList.remove(photoId);
   // returnType: List<String> filteredPhotoIdList
   Future<List<String>> filterPhotos() async {
-    AuthClient authClient = await _authService.obtainAuthenticatedClient();
+    AuthClient authClient = await getAuthClient();
     List<String> photoList = await getAllPhotos();
     List<String> albumList = await getAlbumIds();
 
@@ -97,7 +101,7 @@ class ApiRequests {
   // param: List<String> imageIds
   // returnType: Future<List<String>>
   Future<List<String>> returnImageUrls(List<String> imageIds) async {
-    AuthClient authClient = await _authService.obtainAuthenticatedClient();
+    AuthClient authClient = await getAuthClient();
 
     var tokenResult = await authClient.post(
         Uri.parse('https://photoslibrary.googleapis.com/v1/mediaItems:search'));
@@ -131,7 +135,7 @@ class ApiRequests {
 
   // Used in Gallery: Returns the baseUrls of all photos
   Future<List<String>> returnAllImageUrls() async {
-    AuthClient authClient = await _authService.obtainAuthenticatedClient();
+    AuthClient authClient = await getAuthClient();
 
     var tokenResult = await authClient.post(
         Uri.parse('https://photoslibrary.googleapis.com/v1/mediaItems:search'));
