@@ -10,9 +10,9 @@
             "type": "dart",
             "deviceId": "chrome",
             "args": [
-                "--web-renderer=html",
-                "--web-hostname=localhost",
-                "--web-port=8080"
+                "--web-renderer", "html",
+                "--web-hostname", "localhost",
+                "--web-port", "8080",
             ]
         }
     ]
