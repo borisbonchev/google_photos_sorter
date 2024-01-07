@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_photos_test/main.dart';
-import 'package:google_photos_test/pages/AlbumPage.dart';
-import 'package:google_photos_test/pages/DevPage.dart';
-import 'package:google_photos_test/pages/GalleryPage.dart';
+import 'package:google_photos_test/pages/album_page.dart';
+import 'package:google_photos_test/pages/dev_page.dart';
+import 'package:google_photos_test/pages/gallery_page.dart';
 
 final ValueNotifier<int> selectedIndex = ValueNotifier<int>(0);
 

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_photos_test/services/album_requests.dart';
 import 'package:google_photos_test/services/img_requests.dart';
 
 final PhotoRequests _photoService = PhotoRequests();
+final AlbumRequests _albumService = AlbumRequests();
 
 class ReturnAllAlbumIdsButton extends StatelessWidget {
   const ReturnAllAlbumIdsButton({super.key});
@@ -12,7 +14,7 @@ class ReturnAllAlbumIdsButton extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: ElevatedButton(
         onPressed: () {
-          _photoService.getAlbumIds();
+          _albumService.getAlbumIds();
         },
         child: const Text('Return all album ids'),
       ),

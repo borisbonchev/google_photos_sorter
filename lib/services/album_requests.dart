@@ -31,4 +31,22 @@ class AlbumRequests {
       throw Exception('Failed to create album: ${response.statusCode}');
     }
   }
+
+    // Return all the albumIds from Google Photos
+  Future<List<String>> getAlbumIds() async {
+    AuthClient authClient = await getAuthClient();
+    var response = await authClient.get(
+      Uri.parse('https://photoslibrary.googleapis.com/v1/albums'),
+    );
+
+    if (response.statusCode != 200) {
+      _logger.warning('Failed to get albums: ${response.statusCode}');
+    }
+
+    var data = jsonDecode(response.body);
+    var albums = data['albums'] as List;
+    var albumIds = albums.map((album) => album['id'] as String).toList();
+
+    return albumIds;
+  }
 }

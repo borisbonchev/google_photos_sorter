@@ -1,11 +1,13 @@
 import 'dart:convert';
 
+import 'package:google_photos_test/services/album_requests.dart';
 import 'package:google_photos_test/services/authentication.dart';
 import 'package:googleapis_auth/auth_browser.dart';
 import 'package:logging/logging.dart';
 
 class PhotoRequests {
   final AuthService _authService = AuthService();
+  final AlbumRequests _albumService = AlbumRequests();
   final _logger = Logger('PhotoRequests');
 
   Future<AuthClient> getAuthClient() async {
@@ -22,34 +24,13 @@ class PhotoRequests {
 
     if (response.statusCode != 200) {
       _logger.warning('Failed to get photos: ${response.statusCode}');
-      return [];
     }
 
     var data = jsonDecode(response.body);
     var photos = data['mediaItems'] as List;
     var photoIds = photos.map((photo) => photo['id'] as String).toList();
 
-    // print(photoIds);
     return photoIds;
-  }
-
-  // Return all the albumIds from Google Photos
-  Future<List<String>> getAlbumIds() async {
-    AuthClient authClient = await getAuthClient();
-    var response = await authClient.get(
-      Uri.parse('https://photoslibrary.googleapis.com/v1/albums'),
-    );
-
-    if (response.statusCode != 200) {
-      _logger.warning('Failed to get albums: ${response.statusCode}');
-    }
-
-    var data = jsonDecode(response.body);
-    var albums = data['albums'] as List;
-    var albumIds = albums.map((album) => album['id'] as String).toList();
-
-    // print(albumIds);
-    return albumIds;
   }
 
   // Takes all photos => filters out photos that are in albums => returns imageUrls
@@ -57,7 +38,7 @@ class PhotoRequests {
   Future<List<String>> filterPhotos() async {
     AuthClient authClient = await getAuthClient();
     List<String> photoList = await getAllPhotos();
-    List<String> albumList = await getAlbumIds();
+    List<String> albumList = await _albumService.getAlbumIds();
 
     int count = 1;
     for (String albumId in albumList) {
@@ -76,6 +57,10 @@ class PhotoRequests {
       }
 
       var data = jsonDecode(response.body);
+      if (data['mediaItems'] == null) {
+        _logger.info('No media items found in the album: $albumId');
+        continue; // Skip processing for this album with no media items
+      }
       var photos = data['mediaItems'] as List;
       var photoIds = photos.map((photo) => photo['id'] as String).toList();
 
