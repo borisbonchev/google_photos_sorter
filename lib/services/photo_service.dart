@@ -130,10 +130,11 @@ class PhotoService {
           .map((photo) => photo['baseUrl'])
           .toList();
 
-      print(filterByBaseUrl);
-      return filterByBaseUrl.cast<String>(); // Return only Strings
+      _logger.info("BaseUrls of all images:");
+      _logger.info(filterByBaseUrl);
+      return filterByBaseUrl.cast<String>();
     } else {
-      print('Failed with status code: ${tokenResult.statusCode}');
+      _logger.warning('Failed with status code: ${tokenResult.statusCode}');
       throw Exception('Failed to fetch image URLs');
     }
   }
