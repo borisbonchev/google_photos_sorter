@@ -1,7 +1,7 @@
 import "package:cached_network_image/cached_network_image.dart";
 import "package:flutter/material.dart";
 import "package:google_photos_test/pages/PhotoViewPage.dart";
-import 'package:google_photos_test/services/api_requests.dart';
+import 'package:google_photos_test/services/img_requests.dart';
 
 class GalleryPage extends StatelessWidget {
   const GalleryPage({super.key});
@@ -9,7 +9,7 @@ class GalleryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<String>>(
-      future: ApiRequests().returnAllImageUrls(),
+      future: PhotoRequests().returnAllImageUrls(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_photos_test/services/api_requests.dart';
+import 'package:google_photos_test/services/img_requests.dart';
 
-final ApiRequests _photoService = ApiRequests();
+final PhotoRequests _photoService = PhotoRequests();
 
 class ReturnAllAlbumIdsButton extends StatelessWidget {
   const ReturnAllAlbumIdsButton({super.key});

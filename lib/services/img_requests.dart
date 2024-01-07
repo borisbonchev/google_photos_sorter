@@ -4,9 +4,9 @@ import 'package:google_photos_test/services/authentication.dart';
 import 'package:googleapis_auth/auth_browser.dart';
 import 'package:logging/logging.dart';
 
-class ApiRequests {
+class PhotoRequests {
   final AuthService _authService = AuthService();
-  final _logger = Logger('ApiRequests');
+  final _logger = Logger('PhotoRequests');
 
   Future<AuthClient> getAuthClient() async {
     return await _authService.obtainAuthenticatedClient();
@@ -94,7 +94,7 @@ class ApiRequests {
   }
 
   // Return the baseUrls of photos based on a list of imageIds
-  // return: List of urls of images                
+  // return: List of urls of images
   Future<List<String>> returnImageUrls(List<String> imageIds) async {
     AuthClient authClient = await getAuthClient();
 
