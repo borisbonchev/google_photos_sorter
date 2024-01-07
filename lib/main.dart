@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_photos_test/pages/navbar/NavBar.dart';
 import 'package:google_photos_test/widgets/unsorted_photos_gallery.dart';
-import 'package:google_photos_test/services/photo_service.dart';
+import 'package:google_photos_test/services/api_requests.dart';
 
 void main() {
   runApp(const MainPage());
@@ -30,14 +30,18 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  late Future<List<String>> imageUrlsFuture;
-  final PhotoService _photoService = PhotoService();
-  bool showImageGallery = true;
+  Future<List<String>>? imageUrlsFuture; // Declare Future as nullable
+
+  final ApiRequests _photoService = ApiRequests();
+  bool showImageGallery = false;
 
   @override
   void initState() {
     super.initState();
-    imageUrlsFuture = _photoService.filterPhotos();
+  }
+
+  Future<List<String>> fetchImageUrls() async {
+    return _photoService.filterPhotos();
   }
 
   @override
@@ -57,13 +61,16 @@ class HomePageState extends State<HomePage> {
                     onPressed: () {
                       setState(() {
                         showImageGallery = !showImageGallery;
+                        if (showImageGallery && imageUrlsFuture == null) {
+                          imageUrlsFuture = fetchImageUrls();
+                        }
                       });
                     },
                     child: Text(showImageGallery ? 'Hide Images' : 'Show Images'),
                   ),
                 ),
               ),
-              if (showImageGallery)
+              if (showImageGallery && imageUrlsFuture != null)
                 Expanded(
                   flex: 2,
                   child: FutureBuilder<List<String>>(
@@ -78,6 +85,11 @@ class HomePageState extends State<HomePage> {
                       }
                     },
                   ),
+                ),
+              if (showImageGallery && imageUrlsFuture == null)
+                const Expanded(
+                  flex: 2,
+                  child: Center(child: Text('Loading images...')),
                 ),
             ],
           );
