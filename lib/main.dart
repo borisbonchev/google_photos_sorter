@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_photos_test/pages/navbar/NavBar.dart';
-import 'package:google_photos_test/widgets/unsorted_photos_gallery.dart';
+import 'package:google_photos_test/widgets/unsorted_image_gallery.dart';
 import 'package:google_photos_test/services/api_requests.dart';
 
 void main() {
@@ -30,15 +30,9 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  Future<List<String>>? imageUrlsFuture; // Declare Future as nullable
-
+  Future<List<String>>? imageUrlsFuture;
   final ApiRequests _photoService = ApiRequests();
   bool showImageGallery = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   Future<List<String>> fetchImageUrls() async {
     return _photoService.filterPhotos();
