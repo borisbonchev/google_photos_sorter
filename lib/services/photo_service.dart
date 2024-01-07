@@ -77,7 +77,7 @@ class PhotoService {
   // For each album in the list of albums, if(photoId.exists(photoIdList))
   //                                         photoIdList.remove(photoId);
   // returnType: List<String> filteredPhotoIdList
-  Future<List<String>> filterPhotoIds() async {
+  Future<List<String>> filterPhotos() async {
     AuthClient authClient = await obtainAuthenticatedClient();
     List<String> photoList = await getAllPhotos();
     List<String> albumList = await getAlbumIds();
@@ -106,17 +106,53 @@ class PhotoService {
       _logger.info('PhotoIds:');
       _logger.info(photoIds);
 
-      // Remove photoIds that exist in photoList
+      // Removing photoIds that exist in photoList
       photoList.removeWhere((photoId) => photoIds.contains(photoId));
       count++;
     }
 
     _logger.info('Filtered photoIds:');
     _logger.info(photoList);
-    return photoList;
+    return returnImageUrls(photoList);
   }
 
-  // Return all the image baseURLs from Google Photos
+  // Return the baseUrls of photos based on a list of imageIds
+  // param: List<String> imageIds
+  // returnType: Future<List<String>>
+  Future<List<String>> returnImageUrls(List<String> imageIds) async {
+    AuthClient authClient = await obtainAuthenticatedClient();
+
+    var tokenResult = await authClient.post(
+        Uri.parse('https://photoslibrary.googleapis.com/v1/mediaItems:search'));
+
+    if (tokenResult.statusCode == 200) {
+      String jsonResponse = tokenResult.body;
+      Map<String, dynamic> data = jsonDecode(jsonResponse);
+      List<dynamic> filteredUrls = [];
+
+      // Filtering based on image IDs
+      List<dynamic> mediaItems = data['mediaItems'] as List<dynamic>;
+      for (var photo in mediaItems) {
+        if (imageIds.contains(photo['id'])) {
+          filteredUrls.add(photo['baseUrl']);
+        }
+      }
+
+      if (filteredUrls.isEmpty) {
+        _logger.warning('No images found with provided IDs');
+      } else {
+        _logger.info('BaseUrls of filtered images:');
+        _logger.info(filteredUrls);
+      }
+
+      return filteredUrls.cast<String>();
+    } else {
+      _logger.warning('Failed with status code: ${tokenResult.statusCode}');
+      throw Exception('Failed to fetch image URLs');
+    }
+  }
+
+  // Used in Gallery: Returns the baseUrls of all photos
   Future<List<String>> returnAllImageUrls() async {
     AuthClient authClient = await obtainAuthenticatedClient();
 
