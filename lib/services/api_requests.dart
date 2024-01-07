@@ -104,7 +104,7 @@ class ApiRequests {
     if (tokenResult.statusCode == 200) {
       String jsonResponse = tokenResult.body;
       Map<String, dynamic> data = jsonDecode(jsonResponse);
-      List<dynamic> filteredUrls = [];
+      List<String> filteredUrls = [];
 
       // Filtering based on image IDs
       List<dynamic> mediaItems = data['mediaItems'] as List<dynamic>;
@@ -121,7 +121,7 @@ class ApiRequests {
         _logger.info(filteredUrls);
       }
 
-      return filteredUrls.cast<String>();
+      return filteredUrls;
     } else {
       _logger.warning('Failed with status code: ${tokenResult.statusCode}');
       throw Exception('Failed to fetch image URLs');

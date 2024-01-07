@@ -38,52 +38,87 @@ class HomePageState extends State<HomePage> {
     return _photoService.filterPhotos();
   }
 
+  void refreshImages() {
+    setState(() {
+      imageUrlsFuture = null; // Reset imageUrlsFuture to null so it will be refetched
+    });
+    // Refetch image URLs
+    imageUrlsFuture = fetchImageUrls();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home Page'),
+        title: const Text('Home'),
       ),
       body: ValueListenableBuilder<int>(
         valueListenable: selectedIndex,
         builder: (context, value, child) {
           return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
                 child: Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        showImageGallery = !showImageGallery;
-                        if (showImageGallery && imageUrlsFuture == null) {
-                          imageUrlsFuture = fetchImageUrls();
-                        }
-                      });
-                    },
-                    child: Text(showImageGallery ? 'Hide Images' : 'Show Images'),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            showImageGallery = !showImageGallery;
+                            if (showImageGallery && imageUrlsFuture == null) {
+                              imageUrlsFuture = fetchImageUrls();
+                            }
+                          });
+                        },
+                        child: Text(
+                            showImageGallery ? 'Hide Images' : 'Show Images'),
+                      ),
+                      if (showImageGallery)
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: ElevatedButton(
+                            onPressed: refreshImages,
+                            child: const Text('Refresh Images'),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
-              if (showImageGallery && imageUrlsFuture != null)
+              if (showImageGallery)
                 Expanded(
                   flex: 2,
-                  child: FutureBuilder<List<String>>(
-                    future: imageUrlsFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      } else {
-                        return UnsortedImagesGallery(imageUrls: snapshot.data!);
-                      }
-                    },
+                  child: Column(
+                    children: [
+                      if (imageUrlsFuture == null)
+                        const Expanded(
+                          flex: 2,
+                          child: Center(child: Text('Loading images...')),
+                        ),
+                      if (imageUrlsFuture != null)
+                        Expanded(
+                          flex: 2,
+                          child: FutureBuilder<List<String>>(
+                            future: imageUrlsFuture,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              } else if (snapshot.hasError) {
+                                return Center(
+                                    child: Text('Error: ${snapshot.error}'));
+                              } else {
+                                return UnsortedImagesGallery(
+                                    imageUrls: snapshot.data!);
+                              }
+                            },
+                          ),
+                        ),
+                    ],
                   ),
-                ),
-              if (showImageGallery && imageUrlsFuture == null)
-                const Expanded(
-                  flex: 2,
-                  child: Center(child: Text('Loading images...')),
                 ),
             ],
           );
