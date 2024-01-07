@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:google_photos_test/pages/AlbumPage.dart';
-import 'package:google_photos_test/pages/DevPage.dart';
-import 'package:google_photos_test/pages/GalleryPage.dart';
 import 'package:google_photos_test/pages/navbar/NavBar.dart';
+import 'package:google_photos_test/widgets/unsorted_photos_gallery.dart';
+import 'package:google_photos_test/services/photo_service.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MainPage());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MainPage extends StatelessWidget {
+  const MainPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +22,23 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  HomePageState createState() => HomePageState();
+}
+
+class HomePageState extends State<HomePage> {
+  late Future<List<String>> imageUrlsFuture;
+  final PhotoService _photoService = PhotoService();
+  bool showImageGallery = true;
+
+  @override
+  void initState() {
+    super.initState();
+    imageUrlsFuture = _photoService.filterPhotos();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,21 +49,36 @@ class HomePage extends StatelessWidget {
       body: ValueListenableBuilder<int>(
         valueListenable: selectedIndex,
         builder: (context, value, child) {
-          return PageView(
-            controller: PageController(initialPage: value),
-            onPageChanged: (index) {
-              selectedIndex.value = index;
-            },
-            children: const <Widget>[
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[],
+          return Row(
+            children: [
+              Expanded(
+                child: Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        showImageGallery = !showImageGallery;
+                      });
+                    },
+                    child: Text(showImageGallery ? 'Hide Images' : 'Show Images'),
+                  ),
                 ),
               ),
-              GalleryPage(),
-              AlbumPage(),
-              DevPage(),
+              if (showImageGallery)
+                Expanded(
+                  flex: 2,
+                  child: FutureBuilder<List<String>>(
+                    future: imageUrlsFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else {
+                        return UnsortedImagesGallery(imageUrls: snapshot.data!);
+                      }
+                    },
+                  ),
+                ),
             ],
           );
         },

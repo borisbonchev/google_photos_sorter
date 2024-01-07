@@ -10,14 +10,17 @@ class UnsortedImagesGallery extends StatelessWidget {
     return GridView.builder(
       itemCount: imageUrls.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+        crossAxisCount: 5, // Set crossAxisCount to 1 for a single column layout
         crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
+        mainAxisSpacing: 100,
       ),
       itemBuilder: (context, index) {
-        return Image.network(
-          imageUrls[index],
-          fit: BoxFit.cover,
+        return SizedBox(
+          width: MediaQuery.of(context).size.width / 2, // Set width to half of the screen width
+          child: Image.network(
+            imageUrls[index],
+            fit: BoxFit.cover,
+          ),
         );
       },
     );
