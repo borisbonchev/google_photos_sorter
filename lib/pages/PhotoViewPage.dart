@@ -20,6 +20,7 @@ class PhotoViewPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: PhotoViewGallery.builder(
         itemCount: photos.length,
