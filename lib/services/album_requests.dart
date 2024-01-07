@@ -12,6 +12,7 @@ class AlbumRequests {
     return await _authService.obtainAuthenticatedClient();
   }
 
+  // Creates an empty album in Google Photos
   Future<String> createAlbum(String name) async {
     AuthClient authClient = await getAuthClient();
 
@@ -32,7 +33,7 @@ class AlbumRequests {
     }
   }
 
-    // Return all the albumIds from Google Photos
+  // Return all the albumIds from Google Photos
   Future<List<String>> getAlbumIds() async {
     AuthClient authClient = await getAuthClient();
     var response = await authClient.get(
@@ -48,5 +49,23 @@ class AlbumRequests {
     var albumIds = albums.map((album) => album['id'] as String).toList();
 
     return albumIds;
+  }
+
+  Future<List<String>> getAlbumNames() async {
+    AuthClient authClient = await getAuthClient();
+    var response = await authClient.get(
+      Uri.parse('https://photoslibrary.googleapis.com/v1/albums'),
+    );
+
+    if (response.statusCode != 200) {
+      _logger.warning('Failed to get albums: ${response.statusCode}');
+    }
+
+    var data = jsonDecode(response.body);
+    var albums = data['albums'] as List;
+    var albumNames = albums.map((album) => album['title'] as String).toList();
+
+    _logger.info("Album names: \n$albumNames");
+    return albumNames;
   }
 }

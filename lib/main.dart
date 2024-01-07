@@ -47,7 +47,7 @@ class HomePageState extends State<HomePage> {
   void refreshImages() {
     setState(() {
       imageUrlsFuture =
-          null; // Reset imageUrlsFuture to null so it will be refetched
+          null; // Reset imageUrlsFuture to null so it can be refetched
     });
     // Refetch image URLs
     imageUrlsFuture = fetchImageUrls();

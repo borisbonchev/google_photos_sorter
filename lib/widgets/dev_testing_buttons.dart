@@ -31,7 +31,7 @@ class TestButton extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: ElevatedButton(
         onPressed: () {
-          _photoService.filterPhotos();
+          _albumService.getAlbumNames();
         },
         child: const Text('Test'),
       ),
