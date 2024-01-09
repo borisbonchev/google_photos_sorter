@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/services.dart';
 import 'package:google_photos_test/services/album_requests.dart';
 import 'package:google_photos_test/services/authentication.dart';
 import 'package:googleapis_auth/auth_browser.dart';
@@ -135,5 +137,44 @@ class PhotoRequests {
       _logger.warning('Failed with status code: ${tokenResult.statusCode}');
       throw Exception('Failed to fetch image URLs');
     }
+  }
+
+  Future<Uint8List> loadImageBytes(String imagePath) async {
+    final ByteData data = await rootBundle.load(imagePath);
+    return data.buffer.asUint8List();
+  }
+
+  Future<void> uploadImage(String imagePath) async {
+    AuthClient client = await getAuthClient();
+    final Uint8List imageBytes = await loadImageBytes(imagePath);
+
+    var tokenResult = await client.post(
+      Uri.parse('https://photoslibrary.googleapis.com/v1/uploads'),
+      headers: {
+        'Content-type': 'application/octet-stream',
+        'X-Goog-Upload-Content-Type': 'image/png',
+        'X-Goog-Upload-Protocol': 'raw'
+      },
+      body: imageBytes,
+    );
+
+    var res = await client.post(
+      Uri.parse(
+          'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate'),
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "newMediaItems": [
+          {
+            "description": "item-description",
+            "simpleMediaItem": {
+              "fileName": "flutter-photos-upload",
+              "uploadToken": tokenResult.body,
+            }
+          }
+        ]
+      }),
+    );
+
+    _logger.info(res.body); // Log the response
   }
 }
