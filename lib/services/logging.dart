@@ -7,7 +7,7 @@ void setupLogger() {
   Logger.root.level = Level.ALL;
 
   Logger.root.onRecord.listen((LogRecord rec) {
-    print('${rec.level.name}: ${rec.time}: ${rec.message}'); // Output log messages to the console
+    print('${rec.level.name}: ${rec.time}: \n${rec.message}'); // Output log messages to the console
     if (rec.error != null) {
       print('Error: ${rec.error}');
     }

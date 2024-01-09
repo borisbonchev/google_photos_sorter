@@ -34,30 +34,28 @@ class AlbumRequests {
   }
 
   // Adds a list of photos to an album
-  Future<String> addPhotosToAlbum(
-      String albumId, List<String> mediaItemIds) async {
+  void addPhotosToAlbum(String albumId, List<String> photoIds) async {
     AuthClient authClient = await getAuthClient();
 
-    var response = await authClient.post(
-      Uri.parse(
-          'https://photoslibrary.googleapis.com/v1/albums/$albumId:batchAddMediaItems'),
-      body: jsonEncode({
-        'mediaItemIds': mediaItemIds,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
+      String jsonBody = jsonEncode({
+        "mediaItemIds": photoIds,
+      });
 
-    if (response.statusCode == 200) {
-      return response.body;
-    } else {
-      throw Exception(
-          'Failed to add mediaItems to album: ${response.statusCode}');
-    }
+      var response = await authClient.post(
+        Uri.parse(
+            'https://photoslibrary.googleapis.com/v1/albums/$albumId:batchAddMediaItems'),
+        body: jsonBody,
+      );
+
+      if (response.statusCode != 200) {
+        _logger
+            .warning('Failed to add mediaItems to album: ${response.statusCode}');
+      }
+
+      _logger.info(response.body);
   }
 
-  // Return all the albumIds from Google Photos
+  // Return all the albumNames and albumIds from Google Photos
   Future<List<String>> getAlbumIds() async {
     AuthClient authClient = await getAuthClient();
     var response = await authClient.get(
@@ -72,6 +70,7 @@ class AlbumRequests {
     var albums = data['albums'] as List;
     var albumIds = albums.map((album) => album['id'] as String).toList();
 
+    _logger.info("Album ids: \n$albumIds");
     return albumIds;
   }
 

@@ -75,7 +75,8 @@ class PhotoRequests {
 
     _logger.info('Filtered photoIds:');
     _logger.info(photoList);
-    return returnImageUrls(photoList);
+    Future<List<String>> photoUrls = returnImageUrls(photoList);
+    return photoUrls;
   }
 
   // Return the baseUrls of photos based on a list of imageIds

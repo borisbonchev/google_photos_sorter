@@ -17,6 +17,7 @@ class DevPage extends StatelessWidget {
           children: <Widget>[
             ReturnAllAlbumIdsButton(),
             TestButton(),
+            AddPhotosToAlbumButton(),
           ],
         ),
       ),
