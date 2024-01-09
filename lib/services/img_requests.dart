@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/services.dart';
+import 'package:flutter/services.dart' show ByteData, Uint8List, rootBundle;
 import 'package:google_photos_test/services/album_requests.dart';
 import 'package:google_photos_test/services/authentication.dart';
 import 'package:googleapis_auth/auth_browser.dart';
@@ -177,4 +177,8 @@ class PhotoRequests {
 
     _logger.info(res.body); // Log the response
   }
+
+  // Future<void> uploadToGooglePhotos(File file) async {
+
+  // }
 }

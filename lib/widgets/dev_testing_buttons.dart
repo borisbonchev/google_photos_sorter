@@ -80,8 +80,6 @@ class ReturnImageUrls extends StatelessWidget {
   }
 }
 
-String filePath = 'assets/images/black.jpeg';
-
 class UploadPhotos extends StatelessWidget {
   const UploadPhotos({super.key});
 
@@ -91,7 +89,7 @@ class UploadPhotos extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: ElevatedButton(
         onPressed: () {
-          _photoService.uploadImage(filePath);
+          _photoService.uploadImage('assets/images/black.jpeg');
         },
         child: const Column(
           children: [
