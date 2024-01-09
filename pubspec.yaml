@@ -14,9 +14,10 @@ dependencies:
   file_picker: ^6.1.1
   cached_network_image: ^3.3.1
   photo_view: ^0.14.0
-  http: ^1.1.2
+  http: 1.1.2
   logging: ^1.2.0
-  image_picker: ^0.8.4+4 
+  image_picker: ^1.0.7 
+  oauth2: ^2.0.2
   
 dev_dependencies:
   flutter_test:

@@ -31,7 +31,7 @@ class _NavBarState extends State<NavBar> {
     if (index == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const GalleryPage()),
+        MaterialPageRoute(builder: (context) => GalleryPage()),
       );
     }
 

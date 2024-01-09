@@ -139,7 +139,7 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 5,
                 crossAxisSpacing: 10,
-                mainAxisSpacing: 100,
+                mainAxisSpacing: 10,
               ),
               itemBuilder: (context, index) {
                 final isSelected = selectedIndices.contains(index);

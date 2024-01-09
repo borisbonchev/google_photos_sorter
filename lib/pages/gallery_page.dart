@@ -7,7 +7,8 @@ import 'package:google_photos_test/services/img_requests.dart';
 import 'package:google_photos_test/services/logging.dart';
 
 class GalleryPage extends StatelessWidget {
-  const GalleryPage({Key? key}) : super(key: key);
+  GalleryPage({super.key});
+  final _photoService = PhotoRequests();
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +26,9 @@ class GalleryPage extends StatelessWidget {
             appBar: AppBar(
               title: Row(
                 children: [
-                  Expanded(child: Text('Gallery')),
+                  const Expanded(child: Text('Gallery')),
                   IconButton(
-                    icon: Icon(Icons.add),
+                    icon: const Icon(Icons.add),
                     onPressed: () => _handleImageSelection(context),
                   ),
                 ],
@@ -99,11 +100,11 @@ class GalleryPage extends StatelessWidget {
     input.accept = 'image/*';
     input.click();
 
-    input.onChange.listen((event) {
-      final html.File? file = input.files?.first;
-      if (file != null) {
-        // uploadToGooglePhotos(file);
-      }
-    });
+    await input.onChange.first; // Wait for the file selection
+
+    final file = input.files?.first;
+    if (file != null) {
+      await _photoService.uploadToGooglePhotos(file);
+    }
   }
 }
