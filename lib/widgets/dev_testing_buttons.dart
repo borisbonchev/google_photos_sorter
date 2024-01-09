@@ -62,3 +62,43 @@ class AddPhotosToAlbumButton extends StatelessWidget {
     );
   }
 }
+
+class ReturnImageUrls extends StatelessWidget {
+  const ReturnImageUrls({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ElevatedButton(
+        onPressed: () {
+          _photoService.returnAllImageUrls();
+        },
+        child: const Text('Return img urls'),
+      ),
+    );
+  }
+}
+
+String filePath = 'assets/images/black.jpeg';
+
+class UploadPhotos extends StatelessWidget {
+  const UploadPhotos({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ElevatedButton(
+        onPressed: () {
+          _photoService.uploadImage(filePath);
+        },
+        child: const Column(
+          children: [
+            Text('Upload Photos'),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -18,6 +18,8 @@ class DevPage extends StatelessWidget {
             ReturnAllAlbumIdsButton(),
             TestButton(),
             AddPhotosToAlbumButton(),
+            ReturnImageUrls(),
+            UploadPhotos(),
           ],
         ),
       ),
