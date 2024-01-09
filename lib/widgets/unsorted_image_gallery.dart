@@ -6,8 +6,7 @@ import 'package:google_photos_test/widgets/custom_checkbox.dart';
 class UnsortedImagesGallery extends StatefulWidget {
   final List<String> imageUrls;
 
-  const UnsortedImagesGallery({Key? key, required this.imageUrls})
-      : super(key: key);
+  const UnsortedImagesGallery({super.key, required this.imageUrls});
 
   @override
   UnsortedImagesGalleryState createState() => UnsortedImagesGalleryState();
@@ -19,10 +18,19 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
   late List<int> selectedIndices;
   int? hoveredIndex;
 
+  String? selectedAlbumId; // Add this variable to store the selected album ID
+  List<String> albumNames = [];
+
   @override
   void initState() {
     super.initState();
     selectedIndices = [];
+    _fetchAlbumNames();
+  }
+
+  Future<void> _fetchAlbumNames() async {
+    albumNames = await _albumService.getAlbumNames(); // Fetch album names
+    setState(() {}); // Trigger rebuild after fetching album names
   }
 
   void toggleSelection(int index) {
@@ -50,6 +58,33 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
     _albumDialog.showCreateAlbumDialog(context, _albumService);
   }
 
+  Future<void> _addImagesToAlbum(BuildContext context) async {
+    if (selectedAlbumId != null && selectedIndices.isNotEmpty) {
+      List<String> selectedPhotoIds =
+          selectedIndices.map((index) => widget.imageUrls[index]).toList();
+
+      try {
+        await _albumService.addPhotosToAlbum(
+            selectedAlbumId!, selectedPhotoIds);
+        setState(() {
+          selectedIndices.clear();
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Images added to the selected album'),
+          ),
+        );
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to add images to the selected album'),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -61,14 +96,37 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ElevatedButton(
-                onPressed: _showCreateAlbumDialog,
-                child: const Text('Create New Album'),
-              ),
-              ElevatedButton(
                 onPressed: selectAll,
                 child: Text(selectedIndices.length == widget.imageUrls.length
                     ? 'Deselect All'
                     : 'Select All'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _showCreateAlbumDialog();
+                },
+                child: const Text('Create New Album'),
+              ),
+              const SizedBox(width: 250),
+              ElevatedButton(
+                onPressed: () {
+                  _addImagesToAlbum(context);
+                },
+                child: const Text('Add to Album'),
+              ),
+              DropdownButton<String>(
+                value: selectedAlbumId,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedAlbumId = newValue;
+                  });
+                },
+                items: albumNames.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
               ),
             ],
           ),
