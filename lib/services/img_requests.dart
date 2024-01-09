@@ -1,3 +1,6 @@
+// ignore_for_file: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
+import 'dart:html';
 import 'dart:async';
 import 'dart:convert';
 
@@ -145,10 +148,10 @@ class PhotoRequests {
   }
 
   Future<void> uploadImage(String imagePath) async {
-    AuthClient client = await getAuthClient();
+    AuthClient authClient = await getAuthClient();
     final Uint8List imageBytes = await loadImageBytes(imagePath);
 
-    var tokenResult = await client.post(
+    var uploadToken = await authClient.post(
       Uri.parse('https://photoslibrary.googleapis.com/v1/uploads'),
       headers: {
         'Content-type': 'application/octet-stream',
@@ -158,7 +161,7 @@ class PhotoRequests {
       body: imageBytes,
     );
 
-    var res = await client.post(
+    var res = await authClient.post(
       Uri.parse(
           'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate'),
       headers: {'Content-type': 'application/json'},
@@ -168,17 +171,57 @@ class PhotoRequests {
             "description": "item-description",
             "simpleMediaItem": {
               "fileName": "flutter-photos-upload",
-              "uploadToken": tokenResult.body,
+              "uploadToken": uploadToken.body,
             }
           }
         ]
       }),
     );
 
-    _logger.info(res.body); // Log the response
+    _logger.info(res.body);
   }
 
-  // Future<void> uploadToGooglePhotos(File file) async {
+  Future<void> uploadToGooglePhotos(File file) async {
+    final AuthClient authClient = await _authService.obtainAuthenticatedClient();
 
-  // }
+    final reader = html.FileReader();
+    reader.readAsArrayBuffer(file);
+
+    await reader.onLoad.first;
+
+    final nativeUint8List = reader.result as Uint8List;
+
+    final imageBytes = Uint8List.fromList(nativeUint8List);
+
+    var uploadToken = await authClient.post(
+      Uri.parse('https://photoslibrary.googleapis.com/v1/uploads'),
+      headers: {
+        'Content-type': 'application/octet-stream',
+        'X-Goog-Upload-Content-Type': 'image/png',
+        'X-Goog-Upload-Protocol': 'raw'
+      },
+      body: imageBytes,
+    );
+
+    var res = await authClient.post(
+      Uri.parse(
+          'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate'),
+      headers: {
+        'Content-type': 'application/json',
+      },
+      body: jsonEncode({
+        "newMediaItems": [
+          {
+            "description": "item-description",
+            "simpleMediaItem": {
+              "fileName": "flutter-photos-upload",
+              "uploadToken": uploadToken.body,
+            }
+          }
+        ]
+      }),
+    );
+
+    _logger.info(res.body);
+  }
 }
