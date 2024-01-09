@@ -33,6 +33,30 @@ class AlbumRequests {
     }
   }
 
+  // Adds a list of photos to an album
+  Future<String> addPhotosToAlbum(
+      String albumId, List<String> mediaItemIds) async {
+    AuthClient authClient = await getAuthClient();
+
+    var response = await authClient.post(
+      Uri.parse(
+          'https://photoslibrary.googleapis.com/v1/albums/$albumId:batchAddMediaItems'),
+      body: jsonEncode({
+        'mediaItemIds': mediaItemIds,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception(
+          'Failed to add mediaItems to album: ${response.statusCode}');
+    }
+  }
+
   // Return all the albumIds from Google Photos
   Future<List<String>> getAlbumIds() async {
     AuthClient authClient = await getAuthClient();
