@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:google_photos_test/services/authentication.dart';
@@ -34,9 +35,10 @@ class AlbumRequests {
   }
 
   // Adds a list of photos to an album
-  void addPhotosToAlbum(String albumId, List<String> photoIds) async {
-    AuthClient authClient = await getAuthClient();
+  Future<void> addPhotosToAlbum(String albumId, List<String> photoIds) {
+    var completer = Completer<void>();
 
+    getAuthClient().then((authClient) async {
       String jsonBody = jsonEncode({
         "mediaItemIds": photoIds,
       });
@@ -48,11 +50,18 @@ class AlbumRequests {
       );
 
       if (response.statusCode != 200) {
-        _logger
-            .warning('Failed to add mediaItems to album: ${response.statusCode}');
+        _logger.warning(response.body);
+        completer.completeError('Failed to add mediaItems to album');
+      } else {
+        _logger.info(response.body);
+        completer.complete();
       }
+    }).catchError((error) {
+      _logger.warning('Error adding mediaItems to album: $error');
+      completer.completeError('Error adding mediaItems to album');
+    });
 
-      _logger.info(response.body);
+    return completer.future;
   }
 
   // Return all the albumNames and albumIds from Google Photos
