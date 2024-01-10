@@ -7,12 +7,14 @@ import 'dart:convert';
 import 'package:flutter/services.dart' show ByteData, Uint8List, rootBundle;
 import 'package:google_photos_test/services/album_requests.dart';
 import 'package:google_photos_test/services/authentication.dart';
+import 'package:google_photos_test/services/data_mapper.dart';
 import 'package:googleapis_auth/auth_browser.dart';
 import 'package:logging/logging.dart';
 
 class PhotoRequests {
   final AuthService _authService = AuthService();
   final AlbumRequests _albumService = AlbumRequests();
+  final DataMapper _dataMapper = DataMapper();
   final _logger = Logger('PhotoRequests');
 
   Future<AuthClient> getAuthClient() async {
@@ -40,7 +42,7 @@ class PhotoRequests {
 
   // Takes all photos => filters out photos that are in albums => returns imageUrls
   // return: Filtered iamgeUrls of photos that are not in any album
-  Future<List<String>> filterPhotos() async {
+  Future<Map<String, String>> filterPhotos() async {
     AuthClient authClient = await getAuthClient();
     List<String> photoList = await getAllPhotos();
     List<String> albumList = await _albumService.getAlbumIds();
@@ -64,7 +66,7 @@ class PhotoRequests {
       var data = jsonDecode(response.body);
       if (data['mediaItems'] == null) {
         _logger.info('No media items found in the album: $albumId');
-        continue; // Skip processing for this album with no media items
+        continue;
       }
       var photos = data['mediaItems'] as List;
       var photoIds = photos.map((photo) => photo['id'] as String).toList();
@@ -80,8 +82,12 @@ class PhotoRequests {
 
     _logger.info('Filtered photoIds:');
     _logger.info(photoList);
+
     Future<List<String>> photoUrls = returnImageUrls(photoList);
-    return photoUrls;
+    Map<String, String> imageIdUrlMap =
+        _dataMapper.combineListsToMap(await photoUrls, photoList);
+
+    return imageIdUrlMap;
   }
 
   // Return the baseUrls of photos based on a list of imageIds
@@ -182,7 +188,7 @@ class PhotoRequests {
   }
 
   Future<void> uploadToGooglePhotos(File file) async {
-    final AuthClient authClient = await _authService.obtainAuthenticatedClient();
+    AuthClient authClient = await getAuthClient();
 
     final reader = html.FileReader();
     reader.readAsArrayBuffer(file);
@@ -197,7 +203,7 @@ class PhotoRequests {
       Uri.parse('https://photoslibrary.googleapis.com/v1/uploads'),
       headers: {
         'Content-type': 'application/octet-stream',
-        'X-Goog-Upload-Content-Type': 'image/png',
+        'X-Goog-Upload-Content-Type': 'image/jpeg',
         'X-Goog-Upload-Protocol': 'raw'
       },
       body: imageBytes,

@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:google_photos_test/services/authentication.dart';
+import 'package:google_photos_test/services/data_mapper.dart';
 import 'package:googleapis_auth/googleapis_auth.dart';
 import 'package:logging/logging.dart';
 
 class AlbumRequests {
   final AuthService _authService = AuthService();
+  final DataMapper _dataMapper = DataMapper();
   final _logger = Logger('AlbumRequests');
 
   Future<AuthClient> getAuthClient() async {
@@ -99,5 +101,15 @@ class AlbumRequests {
 
     _logger.info("Album names: \n$albumNames");
     return albumNames;
+  }
+
+  Future<Map<String, String>> getAlbumData() async {
+    Future<List<String>> albumNames = getAlbumNames();
+    Future<List<String>> albumIds = getAlbumIds();
+
+    Map<String, String> albumDataMap =
+        _dataMapper.combineListsToMap(await albumNames, await albumIds);
+
+    return albumDataMap;
   }
 }

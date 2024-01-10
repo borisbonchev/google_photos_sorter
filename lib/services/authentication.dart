@@ -21,6 +21,7 @@ class AuthService {
       return _cachedAuthClient!;
     }
 
+    // ignore: deprecated_member_use
     final flow = await createImplicitBrowserFlow(
       _clientId,
       _scopes,
