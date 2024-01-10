@@ -51,7 +51,7 @@ class GalleryPage extends StatelessWidget {
   Widget _buildError(String errorMessage) {
     return Scaffold(
       appBar: AppBar(title: const Text('Gallery')),
-      body: Center(child: Text('Error: $errorMessage')),
+      body: const Center(child: Text('No photos found.')),
     );
   }
 

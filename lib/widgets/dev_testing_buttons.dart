@@ -87,7 +87,6 @@ String imagePath4 = 'assets/images/cat3.jpg';
 String imagePath5 = 'assets/images/landscape1.jpeg';
 String imagePath6 = 'assets/images/landscape2.jpeg';
 String imagePath7 = 'assets/images/landscape3.jpg';
-String imagePath8 = 'assets/images/landscape4.jpg';
 
 class UploadPhotos extends StatelessWidget {
   const UploadPhotos({super.key});
@@ -105,7 +104,6 @@ class UploadPhotos extends StatelessWidget {
           await _photoService.uploadImage(imagePath5);
           await _photoService.uploadImage(imagePath6);
           await _photoService.uploadImage(imagePath7);
-          await _photoService.uploadImage(imagePath8);
         },
         child: const Column(
           children: [

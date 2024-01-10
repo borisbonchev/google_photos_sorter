@@ -59,10 +59,11 @@ class HomePageState extends State<HomePage> {
 
   void refreshImages() {
     setState(() {
-      imageUrlsFuture =
-          null; // Reset imageUrlsFuture to null so it can be refetched
+      imageUrlsFuture = null;
     });
+
     // Refetch image URLs
+    imageIdsFuture = fetchImageIds();
     imageUrlsFuture = fetchImageUrls();
   }
 
@@ -123,8 +124,8 @@ class HomePageState extends State<HomePage> {
                                 return const Center(
                                     child: CircularProgressIndicator());
                               } else if (snapshot.hasError) {
-                                return Center(
-                                    child: Text('Error: ${snapshot.error}'));
+                                return const Center(
+                                    child: Text('No photos found.'));
                               } else {
                                 return FutureBuilder<List<String>>(
                                   future: imageIdsFuture,
@@ -134,9 +135,8 @@ class HomePageState extends State<HomePage> {
                                       return const Center(
                                           child: CircularProgressIndicator());
                                     } else if (idsSnapshot.hasError) {
-                                      return Center(
-                                          child: Text(
-                                              'Error: ${idsSnapshot.error}'));
+                                      return const Center(
+                                          child: Text('No photos found.'));
                                     } else {
                                       return UnsortedImagesGallery(
                                         imageUrls: snapshot.data!,
