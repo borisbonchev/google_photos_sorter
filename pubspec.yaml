@@ -27,5 +27,11 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/bridge.jpg
     - assets/images/black.jpeg
+    - assets/images/cat1.jpg
+    - assets/images/cat2.jpeg
+    - assets/images/cat3.jpg
+    - assets/images/landscape1.jpeg
+    - assets/images/landscape2.jpeg
+    - assets/images/landscape3.jpg
+    - assets/images/landscape4.jpg

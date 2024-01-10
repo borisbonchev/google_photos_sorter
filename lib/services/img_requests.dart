@@ -161,7 +161,7 @@ class PhotoRequests {
       Uri.parse('https://photoslibrary.googleapis.com/v1/uploads'),
       headers: {
         'Content-type': 'application/octet-stream',
-        'X-Goog-Upload-Content-Type': 'image/png',
+        'X-Goog-Upload-Content-Type': 'image/jpeg',
         'X-Goog-Upload-Protocol': 'raw'
       },
       body: imageBytes,
