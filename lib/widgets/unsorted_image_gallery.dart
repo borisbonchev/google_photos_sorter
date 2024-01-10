@@ -2,8 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_photos_test/services/album_requests.dart';
 import 'package:google_photos_test/services/data_mapper.dart';
+import 'package:google_photos_test/services/img_requests.dart';
 import 'package:google_photos_test/widgets/create_album_popup.dart';
 import 'package:google_photos_test/widgets/custom_checkbox.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class UnsortedImagesGallery extends StatefulWidget {
   final List<String> imageUrls;
@@ -16,6 +18,7 @@ class UnsortedImagesGallery extends StatefulWidget {
 }
 
 class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
+  final PhotoRequests _photoService = PhotoRequests();
   final AlbumRequests _albumService = AlbumRequests();
   final AlbumDialog _albumDialog = AlbumDialog();
   final DataMapper _dataMapper = DataMapper();
@@ -26,6 +29,9 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
   List<String> albumIds = [];
   Map<String, String> albumData = {};
   late final Map<String, String> photoData;
+  late List<String> googlePhotosUrls;
+
+  bool isSelectionMode = true;
 
   Map<int, String> indexToImageUrl =
       {}; // Map to store index to imageUrl mapping
@@ -53,14 +59,37 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
         _dataMapper.combineListsToMap(widget.imageUrls, widget.imageIds);
   }
 
+  void switchMode() {
+    // Toggle between selection mode and image click mode
+    setState(() {
+      isSelectionMode = !isSelectionMode;
+      selectedPhotosIndex.clear(); // Clear selections when switching modes
+    });
+  }
+
   void toggleSelection(int index) {
     setState(() {
-      if (selectedPhotosIndex.contains(index)) {
-        selectedPhotosIndex.remove(index);
+      if (isSelectionMode) {
+        // In selection mode, toggle the selection
+        if (selectedPhotosIndex.contains(index)) {
+          selectedPhotosIndex.remove(index);
+        } else {
+          selectedPhotosIndex.add(index);
+        }
       } else {
-        selectedPhotosIndex.add(index);
+        // If not in selection mode, launch the Google Photos URL corresponding to the clicked image
+        launchGooglePhotosUrl(index);
       }
     });
+  }
+
+  Future<void> launchGooglePhotosUrl(int index) async {
+    List<String> googlePhotosUrls =
+        await _photoService.returnFilteredGooglePhotosUrlAuthorized();
+    String url = googlePhotosUrls[index];
+    if (url.isNotEmpty) {
+      launchUrl(Uri.parse(url));
+    }
   }
 
   void selectAll() {
@@ -150,7 +179,11 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
                 },
                 child: const Text('Create New Album'),
               ),
-              const SizedBox(width: 250),
+              ElevatedButton(
+                onPressed:
+                    switchMode, // Use this button to toggle between modes
+                child: Text(isSelectionMode ? 'Click Mode' : 'Selection Mode'),
+              ),
               ElevatedButton(
                 onPressed: () {
                   _addImagesToAlbum(context);
@@ -216,13 +249,14 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
                                 hoveredIndex == index ? BlendMode.darken : null,
                           ),
                         ),
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: CustomCheckBox(
-                            isSelected: isSelected,
+                        if (isSelectionMode)
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: CustomCheckBox(
+                              isSelected: isSelected,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
