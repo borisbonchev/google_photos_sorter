@@ -34,10 +34,27 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   final PhotoRequests _photoService = PhotoRequests();
   Future<List<String>>? imageUrlsFuture;
+  late Future<List<String>> imageIdsFuture;
   bool showImageGallery = false;
 
+  @override
+  void initState() {
+    super.initState();
+    imageIdsFuture = fetchImageIds(); // Fetch imageIds once on initialization
+  }
+
+  Future<List<String>> fetchImageIds() async {
+    Map<String, String> imageUrlIdMap = await _photoService.filterPhotos();
+
+    List<String> imageIds = imageUrlIdMap.values.toList();
+    return imageIds;
+  }
+
   Future<List<String>> fetchImageUrls() async {
-    return _photoService.filterPhotos();
+    Map<String, String> imageUrlIdMap = await _photoService.filterPhotos();
+
+    List<String> imageUrls = imageUrlIdMap.keys.toList();
+    return imageUrls;
   }
 
   void refreshImages() {
@@ -83,7 +100,7 @@ class HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.all(8.0),
                           child: ElevatedButton(
                             onPressed: refreshImages,
-                            child: const Text('Refresh Images'),
+                            child: const Text('Refresh'),
                           ),
                         ),
                     ],
@@ -95,11 +112,6 @@ class HomePageState extends State<HomePage> {
                   flex: 2,
                   child: Column(
                     children: [
-                      if (imageUrlsFuture == null)
-                        const Expanded(
-                          flex: 2,
-                          child: Center(child: Text('Loading images...')),
-                        ),
                       if (imageUrlsFuture != null)
                         Expanded(
                           flex: 2,
@@ -114,8 +126,25 @@ class HomePageState extends State<HomePage> {
                                 return Center(
                                     child: Text('Error: ${snapshot.error}'));
                               } else {
-                                return UnsortedImagesGallery(
-                                    imageUrls: snapshot.data!);
+                                return FutureBuilder<List<String>>(
+                                  future: imageIdsFuture,
+                                  builder: (context, idsSnapshot) {
+                                    if (idsSnapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Center(
+                                          child: CircularProgressIndicator());
+                                    } else if (idsSnapshot.hasError) {
+                                      return Center(
+                                          child: Text(
+                                              'Error: ${idsSnapshot.error}'));
+                                    } else {
+                                      return UnsortedImagesGallery(
+                                        imageUrls: snapshot.data!,
+                                        imageIds: idsSnapshot.data!,
+                                      );
+                                    }
+                                  },
+                                );
                               }
                             },
                           ),

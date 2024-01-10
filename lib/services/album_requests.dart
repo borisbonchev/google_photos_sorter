@@ -104,8 +104,8 @@ class AlbumRequests {
   }
 
   Future<Map<String, String>> getAlbumData() async {
-    Future<List<String>> albumNames = getAlbumNames();
-    Future<List<String>> albumIds = getAlbumIds();
+    final albumNames = getAlbumNames();
+    final albumIds = getAlbumIds();
 
     Map<String, String> albumDataMap =
         _dataMapper.combineListsToMap(await albumNames, await albumIds);

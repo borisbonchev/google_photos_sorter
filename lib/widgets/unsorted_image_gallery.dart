@@ -1,12 +1,15 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:google_photos_test/services/album_requests.dart';
+import 'package:google_photos_test/services/data_mapper.dart';
 import 'package:google_photos_test/widgets/create_album_popup.dart';
 import 'package:google_photos_test/widgets/custom_checkbox.dart';
 
 class UnsortedImagesGallery extends StatefulWidget {
   final List<String> imageUrls;
-
-  const UnsortedImagesGallery({super.key, required this.imageUrls});
+  final List<String> imageIds;
+  const UnsortedImagesGallery(
+      {super.key, required this.imageUrls, required this.imageIds});
 
   @override
   UnsortedImagesGalleryState createState() => UnsortedImagesGalleryState();
@@ -15,40 +18,57 @@ class UnsortedImagesGallery extends StatefulWidget {
 class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
   final AlbumRequests _albumService = AlbumRequests();
   final AlbumDialog _albumDialog = AlbumDialog();
-  late List<int> selectedIndices;
+  final DataMapper _dataMapper = DataMapper();
+  late List<int> selectedPhotosIndex;
+  String? selectedAlbumIndex;
   int? hoveredIndex;
-
-  String? selectedAlbumId; // Add this variable to store the selected album ID
   List<String> albumNames = [];
+  List<String> albumIds = [];
+  Map<String, String> albumData = {};
+  late final Map<String, String> photoData;
+
+  Map<int, String> indexToImageUrl =
+      {}; // Map to store index to imageUrl mapping
+
+  void _mapIndexesToImageUrls() {
+    for (int i = 0; i < widget.imageUrls.length; i++) {
+      indexToImageUrl[i] = widget.imageUrls[i];
+    }
+  }
+
+  Future<void> _fetchAlbumData() async {
+    albumNames = await _albumService.getAlbumNames();
+    albumIds = await _albumService.getAlbumIds();
+    albumData = _dataMapper.combineListsToMap(albumNames, albumIds);
+    setState(() {}); // Trigger rebuild after fetching album names
+  }
 
   @override
   void initState() {
     super.initState();
-    selectedIndices = [];
-    _fetchAlbumNames();
-  }
-
-  Future<void> _fetchAlbumNames() async {
-    albumNames = await _albumService.getAlbumNames(); // Fetch album names
-    setState(() {}); // Trigger rebuild after fetching album names
+    selectedPhotosIndex = [];
+    _fetchAlbumData();
+    _mapIndexesToImageUrls();
+    photoData =
+        _dataMapper.combineListsToMap(widget.imageUrls, widget.imageIds);
   }
 
   void toggleSelection(int index) {
     setState(() {
-      if (selectedIndices.contains(index)) {
-        selectedIndices.remove(index);
+      if (selectedPhotosIndex.contains(index)) {
+        selectedPhotosIndex.remove(index);
       } else {
-        selectedIndices.add(index);
+        selectedPhotosIndex.add(index);
       }
     });
   }
 
   void selectAll() {
     setState(() {
-      if (selectedIndices.length == widget.imageUrls.length) {
-        selectedIndices.clear();
+      if (selectedPhotosIndex.length == widget.imageUrls.length) {
+        selectedPhotosIndex.clear();
       } else {
-        selectedIndices =
+        selectedPhotosIndex =
             List.generate(widget.imageUrls.length, (index) => index);
       }
     });
@@ -59,30 +79,52 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
   }
 
   Future<void> _addImagesToAlbum(BuildContext context) async {
-    if (selectedAlbumId != null && selectedIndices.isNotEmpty) {
-      List<String> selectedPhotoIds =
-          selectedIndices.map((index) => widget.imageUrls[index]).toList();
-
+    if (selectedAlbumIndex != null && selectedPhotosIndex.isNotEmpty) {
       try {
+        List<String> selectedPhotoUrls = selectedPhotosIndex
+            .map((index) => indexToImageUrl[
+                index]!) // Retrieve imageUrls using selected indexes
+            .toList();
+
+        List<String> selectedPhotoIds = getPhotoIdsByUrls(selectedPhotoUrls);
+        String? selectedAlbumId = getAlbumIdFromName(selectedAlbumIndex);
+
         await _albumService.addPhotosToAlbum(
             selectedAlbumId!, selectedPhotoIds);
-        setState(() {
-          selectedIndices.clear();
-        });
 
+        // Show a message or perform actions after adding images to the album
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Images added to the selected album'),
           ),
         );
       } catch (error) {
+        // Handle errors if any
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to add images to the selected album'),
+          SnackBar(
+            content: Text('Failed to add images to the album: $error'),
           ),
         );
       }
     }
+  }
+
+  List<String> getPhotoIdsByUrls(List<String> photoUrls) {
+    return photoUrls.map((url) {
+      var entry = photoData.entries.firstWhere((entry) => entry.key == url);
+      return entry.value;
+    }).toList();
+  }
+
+  String? getAlbumIdFromName(String? selectedAlbumName) {
+    if (selectedAlbumName != null) {
+      for (var entry in albumData.entries) {
+        if (entry.key == selectedAlbumName) {
+          return entry.value; // Return the corresponding albumId
+        }
+      }
+    }
+    return null; // Return null if no match found
   }
 
   @override
@@ -97,9 +139,10 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
             children: [
               ElevatedButton(
                 onPressed: selectAll,
-                child: Text(selectedIndices.length == widget.imageUrls.length
-                    ? 'Deselect All'
-                    : 'Select All'),
+                child: Text(
+                    selectedPhotosIndex.length == widget.imageUrls.length
+                        ? 'Deselect All'
+                        : 'Select All'),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -115,10 +158,10 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
                 child: const Text('Add to Album'),
               ),
               DropdownButton<String>(
-                value: selectedAlbumId,
+                value: selectedAlbumIndex,
                 onChanged: (String? newValue) {
                   setState(() {
-                    selectedAlbumId = newValue;
+                    selectedAlbumIndex = newValue;
                   });
                 },
                 items: albumNames.map<DropdownMenuItem<String>>((String value) {
@@ -142,7 +185,7 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
                 mainAxisSpacing: 10,
               ),
               itemBuilder: (context, index) {
-                final isSelected = selectedIndices.contains(index);
+                final isSelected = selectedPhotosIndex.contains(index);
                 return MouseRegion(
                   onEnter: (_) {
                     setState(() {
