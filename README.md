@@ -1,4 +1,5 @@
-# google_photos_test
+# google_photos_sorter
+## Google Photos Management Extension
 
 Have a cluttered Google Photos library with numerous images lacking proper organization?
 This extension app is here to streamline your photo management process. 
