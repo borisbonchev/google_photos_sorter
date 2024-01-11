@@ -18,35 +18,32 @@ class UnsortedImagesGallery extends StatefulWidget {
 }
 
 class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
+  // Services
   final PhotoRequests _photoService = PhotoRequests();
   final AlbumRequests _albumService = AlbumRequests();
   final AlbumDialog _albumDialog = AlbumDialog();
   final DataMapper _dataMapper = DataMapper();
+  // Indexes of selected photos/albums
   late List<int> selectedPhotosIndex;
   String? selectedAlbumIndex;
+  // Hover animation
   int? hoveredIndex;
+  // Album data
   List<String> albumNames = [];
   List<String> albumIds = [];
   Map<String, String> albumData = {};
+  // Photo data
   late final Map<String, String> photoData;
   late List<String> googlePhotosUrls;
-
+  // Toggle between selection mode and image click mode
   bool isSelectionMode = true;
 
-  Map<int, String> indexToImageUrl =
-      {}; // Map to store index to imageUrl mapping
-
+  // Mapping for index to imageUrl
+  Map<int, String> indexToImageUrl = {};
   void _mapIndexesToImageUrls() {
     for (int i = 0; i < widget.imageUrls.length; i++) {
       indexToImageUrl[i] = widget.imageUrls[i];
     }
-  }
-
-  Future<void> _fetchAlbumData() async {
-    albumNames = await _albumService.getAlbumNames();
-    albumIds = await _albumService.getAlbumIds();
-    albumData = _dataMapper.combineListsToMap(albumNames, albumIds);
-    setState(() {}); // Trigger rebuild after fetching album names
   }
 
   @override
@@ -57,6 +54,13 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
     _mapIndexesToImageUrls();
     photoData =
         _dataMapper.combineListsToMap(widget.imageUrls, widget.imageIds);
+  }
+
+  Future<void> _fetchAlbumData() async {
+    albumNames = await _albumService.getAlbumNames();
+    albumIds = await _albumService.getAlbumIds();
+    albumData = _dataMapper.combineListsToMap(albumNames, albumIds);
+    setState(() {}); // Trigger rebuild after fetching album names
   }
 
   void switchMode() {
@@ -107,28 +111,31 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
     _albumDialog.showCreateAlbumDialog(context, _albumService);
   }
 
+  // Adds the selected images to the selected album
   Future<void> _addImagesToAlbum(BuildContext context) async {
     if (selectedAlbumIndex != null && selectedPhotosIndex.isNotEmpty) {
       try {
+        // Retrieves the selected indexes
+        // return: List of imageUrls corresponding to the selected indexes
         List<String> selectedPhotoUrls = selectedPhotosIndex
-            .map((index) => indexToImageUrl[
-                index]!) // Retrieve imageUrls using selected indexes
+            .map((index) => indexToImageUrl[index]!)
             .toList();
 
+        // List of photoIds corresponding to the imageUrls (for POST request)
         List<String> selectedPhotoIds = getPhotoIdsByUrls(selectedPhotoUrls);
+        // String of albumId corresponding to the albumName (for POST request)
         String? selectedAlbumId = getAlbumIdFromName(selectedAlbumIndex);
 
         await _albumService.addPhotosToAlbum(
             selectedAlbumId!, selectedPhotoIds);
 
-        // Show a message or perform actions after adding images to the album
+        // Message popup to inform user that the images were added to the album
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Images added to the selected album'),
           ),
         );
       } catch (error) {
-        // Handle errors if any
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to add images to the album: $error'),
@@ -138,6 +145,7 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
     }
   }
 
+  // Helper functions for _addImagesToAlbum()
   List<String> getPhotoIdsByUrls(List<String> photoUrls) {
     return photoUrls.map((url) {
       var entry = photoData.entries.firstWhere((entry) => entry.key == url);
@@ -153,7 +161,7 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
         }
       }
     }
-    return null; // Return null if no match found
+    return null;
   }
 
   @override
@@ -180,8 +188,7 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
                 child: const Text('Create New Album'),
               ),
               ElevatedButton(
-                onPressed:
-                    switchMode,
+                onPressed: switchMode,
                 child: Text(isSelectionMode ? 'Click Mode' : 'Selection Mode'),
               ),
               ElevatedButton(

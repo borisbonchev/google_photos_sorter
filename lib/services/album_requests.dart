@@ -36,7 +36,8 @@ class AlbumRequests {
     }
   }
 
-  // Adds a list of photos to an album
+  // Adds a list of photos to an album in Google Photos
+  // Completer is used to handle async calls
   Future<void> addPhotosToAlbum(String albumId, List<String> photoIds) {
     var completer = Completer<void>();
 
@@ -66,7 +67,7 @@ class AlbumRequests {
     return completer.future;
   }
 
-  // Return all the albumNames and albumIds from Google Photos
+  // Return all the albumIds from Google Photos
   Future<List<String>> getAlbumIds() async {
     AuthClient authClient = await getAuthClient();
     var response = await authClient.get(
@@ -84,6 +85,7 @@ class AlbumRequests {
     return albumIds;
   }
 
+  // Returns all the albumNames from Google Photos
   Future<List<String>> getAlbumNames() async {
     AuthClient authClient = await getAuthClient();
     var response = await authClient.get(
@@ -101,6 +103,8 @@ class AlbumRequests {
     return albumNames;
   }
 
+  // Maps albumNames and albumIds
+  // Used inside the unsorted_image_gallery widget
   Future<Map<String, String>> getAlbumData() async {
     final albumNames = getAlbumNames();
     final albumIds = getAlbumIds();
