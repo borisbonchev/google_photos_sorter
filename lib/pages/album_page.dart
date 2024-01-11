@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_photos_test/widgets/NavBar.dart';
+import 'package:google_photos_test/widgets/navbar.dart';
 
 class AlbumPage extends StatelessWidget {
   const AlbumPage({super.key});

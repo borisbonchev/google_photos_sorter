@@ -25,7 +25,7 @@ class AlbumDialog {
                 Navigator.of(context).pop();
                 if (albumName.isNotEmpty) {
                   try {
-                    await albumService.createAlbum(albumName);
+                    albumService.createAlbum(albumName);
                     // Update imageUrlsFuture to fetch new images after album creation
                     // refreshImages();
                     _logger.info('Album created: $albumName');

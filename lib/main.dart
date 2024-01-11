@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_photos_test/widgets/NavBar.dart';
+import 'package:google_photos_test/widgets/navbar.dart';
 import 'package:google_photos_test/services/logging.dart';
 import 'package:google_photos_test/widgets/unsorted_image_gallery.dart';
 import 'package:google_photos_test/services/img_requests.dart';

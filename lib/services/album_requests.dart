@@ -16,7 +16,7 @@ class AlbumRequests {
   }
 
   // Creates an empty album in Google Photos
-  Future<String> createAlbum(String name) async {
+  void createAlbum(String name) async {
     AuthClient authClient = await getAuthClient();
 
     var response = await authClient.post(
@@ -30,7 +30,7 @@ class AlbumRequests {
     );
 
     if (response.statusCode == 200) {
-      return response.body;
+      _logger.info('Album created successfully');
     } else {
       throw Exception('Failed to create album: ${response.statusCode}');
     }
@@ -55,7 +55,7 @@ class AlbumRequests {
         _logger.warning(response.body);
         completer.completeError('Failed to add mediaItems to album');
       } else {
-        _logger.info(response.body);
+        _logger.info("Successfully added photo to album");
         completer.complete();
       }
     }).catchError((error) {
@@ -81,7 +81,6 @@ class AlbumRequests {
     var albums = data['albums'] as List;
     var albumIds = albums.map((album) => album['id'] as String).toList();
 
-    _logger.info("Album ids: \n$albumIds");
     return albumIds;
   }
 
@@ -99,7 +98,6 @@ class AlbumRequests {
     var albums = data['albums'] as List;
     var albumNames = albums.map((album) => album['title'] as String).toList();
 
-    _logger.info("Album names: \n$albumNames");
     return albumNames;
   }
 

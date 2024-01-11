@@ -21,8 +21,8 @@ class PhotoRequests {
     return await _authService.obtainAuthenticatedClient();
   }
 
-  // Return all photos from Google Photos
-  // returnType: List<String> photoIds
+  // Return all photos from Google Photos / Gallery Page
+  // returnType: List of photo Ids
   Future<List<String>> getAllPhotos() async {
     AuthClient authClient = await getAuthClient();
     var response = await authClient.get(
@@ -40,8 +40,9 @@ class PhotoRequests {
     return photoIds;
   }
 
-  // Takes all photos => filters out photos that are in albums => returns imageUrls
-  // return: Filtered iamgeUrls of photos that are not in any album
+  // Gets all photos => Gets all photos that belong inside an album using a loop
+  // => filters out photos that are in albums => returns image Urls and Ids
+  // return: Map of imageUrls and corresponding imageIds
   Future<Map<String, String>> filterPhotos() async {
     AuthClient authClient = await getAuthClient();
     List<String> photoList = await getAllPhotos();
@@ -79,22 +80,21 @@ class PhotoRequests {
         }
 
         var photos = data['mediaItems'] as List;
-        var photoIds = photos.map((photo) => photo['id'] as String).toList();
+        var photosInAlbum =
+            photos.map((photo) => photo['id'] as String).toList();
 
-        // Removing photoIds that exist in photoList
-        photoList.removeWhere((photoId) => photoIds.contains(photoId));
+        // Removing photosInAlbum that exist in photoList
+        // return: photoList with photos that are not in any album
+        photoList.removeWhere((photoId) => photosInAlbum.contains(photoId));
       }
     }
-
-    _logger.info('Filtered photoIds:');
-    _logger.info(photoList);
-
     Future<List<String>> photoUrls = returnImageUrls(photoList);
 
-    Map<String, String> imageIdUrlMap =
+    // Mapping imageUrls to imageIds
+    Map<String, String> imageUrlToIdMap =
         _dataMapper.combineListsToMap(await photoUrls, photoList);
 
-    return imageIdUrlMap;
+    return imageUrlToIdMap;
   }
 
   // USED FOR PRINTING IMAGES IN GALLERY // NO AUTHORIZATION NEEDED
@@ -121,9 +121,6 @@ class PhotoRequests {
 
       if (filteredUrls.isEmpty) {
         _logger.warning('No images found with provided IDs');
-      } else {
-        _logger.info('BaseUrls of filtered images:');
-        _logger.info(filteredUrls);
       }
 
       return filteredUrls;
@@ -133,6 +130,7 @@ class PhotoRequests {
     }
   }
 
+  //
   Future<List<String>> returnFilteredGooglePhotosUrlAuthorized() async {
     AuthClient authClient = await getAuthClient();
     List<String> photoList = await getAllPhotos();
@@ -169,17 +167,13 @@ class PhotoRequests {
           continue;
         }
 
-        var photos = data['mediaItems'] as List;
+        var photos = data['mediaItems'] as List<dynamic>;
         var photoIds = photos.map((photo) => photo['id'] as String).toList();
 
         // Removing photoIds that exist in photoList
         photoList.removeWhere((photoId) => photoIds.contains(photoId));
       }
     }
-
-    _logger.info('Filtered photoIds:');
-    _logger.info(photoList);
-
     Future<List<String>> googlePhotosUrl = returnImagePhotosUrl(photoList);
 
     return googlePhotosUrl;
@@ -230,8 +224,6 @@ class PhotoRequests {
           .map((photo) => photo['baseUrl'])
           .toList();
 
-      _logger.info("BaseUrls of all images:");
-      _logger.info(filterByBaseUrl);
       return filterByBaseUrl.cast<String>();
     } else {
       _logger.warning('Failed with status code: ${tokenResult.statusCode}');
@@ -239,11 +231,8 @@ class PhotoRequests {
     }
   }
 
-  Future<Uint8List> loadImageBytes(String imagePath) async {
-    final ByteData data = await rootBundle.load(imagePath);
-    return data.buffer.asUint8List();
-  }
-
+  // Used for uploading images to Google Photos from local assets
+  // Dev Page: Upload Photos
   Future<void> uploadImage(String imagePath) async {
     AuthClient authClient = await getAuthClient();
     final Uint8List imageBytes = await loadImageBytes(imagePath);
@@ -275,9 +264,21 @@ class PhotoRequests {
       }),
     );
 
-    _logger.info(res.body);
+    if (res.statusCode == 200) {
+      _logger.info('Image uploaded successfully');
+    } else {
+      _logger.warning('Failed to upload image: ${res.statusCode}');
+    }
   }
 
+  // Returns the image as bytes
+  Future<Uint8List> loadImageBytes(String imagePath) async {
+    final ByteData data = await rootBundle.load(imagePath);
+    return data.buffer.asUint8List();
+  }
+
+  // NOT WORKING: Authentication error?
+  // Uploading images to Google Photos using File Picker
   Future<void> uploadToGooglePhotos(File file) async {
     AuthClient authClient = await getAuthClient();
 
@@ -300,6 +301,7 @@ class PhotoRequests {
       body: imageBytes,
     );
 
+    // ignore: unused_local_variable
     var res = await authClient.post(
       Uri.parse(
           'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate'),
@@ -319,6 +321,10 @@ class PhotoRequests {
       }),
     );
 
-    _logger.info(res.body);
+    if (res.statusCode == 200) {
+      _logger.info('Image uploaded successfully');
+    } else {
+      _logger.warning('Failed to upload image: ${res.statusCode}');
+    }
   }
 }
