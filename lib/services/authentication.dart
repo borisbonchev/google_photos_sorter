@@ -4,6 +4,9 @@ import 'package:googleapis_auth/auth_browser.dart';
 
 class AuthService {
   final _scopes = ['https://www.googleapis.com/auth/photoslibrary'];
+  final authorizationEndpoint =
+      Uri.parse('https://accounts.google.com/o/oauth2/v2/auth');
+  final tokenEndpoint = Uri.parse('https://oauth2.googleapis.com/token');
   final _identifier =
       '672368799891-jbj743883luhl3qtp2qt8fsr0akdltv7.apps.googleusercontent.com';
   final _secret = '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';
@@ -33,9 +36,6 @@ class AuthService {
   }
 
 //   ?NOT USING THIS ANYMORE BUT MIGHT NEED IT LATER?
-//   final authorizationEndpoint =
-//     Uri.parse('https://accounts.google.com/o/oauth2/v2/auth');
-//   final tokenEndpoint = Uri.parse('https://oauth2.googleapis.com/token');
 //
 //   Map<String, String> getQueryParams(String url) {
 //     final Uri uri = Uri.parse(url);

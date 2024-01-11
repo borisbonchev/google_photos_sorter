@@ -5,7 +5,7 @@ import 'package:google_photos_test/widgets/unsorted_image_gallery.dart';
 import 'package:google_photos_test/services/img_requests.dart';
 
 void main() {
-  setupLogger(); // Setup logger for debugging
+  setupLogger();
   runApp(const MainPage());
 }
 
@@ -33,12 +33,8 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   final PhotoRequests _photoService = PhotoRequests();
-
-  // Used for passing the image ids and urls to the unsorted_image_gallery widget
   Future<List<String>>? imageUrlsFuture;
   late Future<List<String>> imageIdsFuture;
-  
-  // Toggle show unsorted image gallery
   bool showImageGallery = false;
 
   @override
@@ -47,7 +43,6 @@ class HomePageState extends State<HomePage> {
     imageIdsFuture = fetchImageIds(); // Fetch imageIds once on initialization
   }
 
-  // Returns only the ids from the imageData Map
   Future<List<String>> fetchImageIds() async {
     Map<String, String> imageUrlIdMap = await _photoService.filterPhotos();
 
@@ -55,7 +50,6 @@ class HomePageState extends State<HomePage> {
     return imageIds;
   }
 
-  // Returns only the urls from the imageData Map
   Future<List<String>> fetchImageUrls() async {
     Map<String, String> imageUrlIdMap = await _photoService.filterPhotos();
 
@@ -63,8 +57,6 @@ class HomePageState extends State<HomePage> {
     return imageUrls;
   }
 
-  // Refresh both ids and urls when the refresh button is pressed!
-  // otherwise i get errors with the widget
   void refreshImages() {
     setState(() {
       imageUrlsFuture = null;

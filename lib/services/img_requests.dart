@@ -88,16 +88,16 @@ class PhotoRequests {
         photoList.removeWhere((photoId) => photosInAlbum.contains(photoId));
       }
     }
-
     Future<List<String>> photoUrls = returnImageUrls(photoList);
-    
+
     // Mapping imageUrls to imageIds
     Map<String, String> imageUrlToIdMap =
         _dataMapper.combineListsToMap(await photoUrls, photoList);
+
     return imageUrlToIdMap;
   }
 
-  // USED FOR PRINTING IMAGES IN GALLERY / NO AUTHORIZATION NEEDED
+  // USED FOR PRINTING IMAGES IN GALLERY // NO AUTHORIZATION NEEDED
   // Return the baseUrls of photos based on a list of imageIds
   // return: List of urls of images
   Future<List<String>> returnImageUrls(List<String> imageIds) async {
@@ -130,9 +130,7 @@ class PhotoRequests {
     }
   }
 
-  // USED IN CLICK MODE TOGGLE IN unsorted_image_gallery / AUTHORIZED ONLY
-  // Gets all the Google Photos URLs for filtered images for click mode toggle
-  // return: List of Google Photos URLs
+  //
   Future<List<String>> returnFilteredGooglePhotosUrlAuthorized() async {
     AuthClient authClient = await getAuthClient();
     List<String> photoList = await getAllPhotos();
@@ -176,13 +174,12 @@ class PhotoRequests {
         photoList.removeWhere((photoId) => photoIds.contains(photoId));
       }
     }
-
     Future<List<String>> googlePhotosUrl = returnImagePhotosUrl(photoList);
+
     return googlePhotosUrl;
   }
 
-  // Helper function for returnFilteredGooglePhotosUrlAuthorized()
-  // return: List of Google Photos URLs corresponding to a List of imageIds
+  // USED FOR REDIRECTING THE USER TO GOOGLE PHOTOS // AUTHORIZED ONLY
   Future<List<String>> returnImagePhotosUrl(List<String> imageIds) async {
     AuthClient authClient = await getAuthClient();
 
