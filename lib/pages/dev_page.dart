@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_photos_test/pages/navbar/NavBar.dart';
+import 'package:google_photos_test/widgets/NavBar.dart';
 import 'package:google_photos_test/widgets/dev_testing_buttons.dart';
 
 class DevPage extends StatelessWidget {

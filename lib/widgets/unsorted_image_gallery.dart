@@ -181,7 +181,7 @@ class UnsortedImagesGalleryState extends State<UnsortedImagesGallery> {
               ),
               ElevatedButton(
                 onPressed:
-                    switchMode, // Use this button to toggle between modes
+                    switchMode,
                 child: Text(isSelectionMode ? 'Click Mode' : 'Selection Mode'),
               ),
               ElevatedButton(

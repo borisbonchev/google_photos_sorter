@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_photos_test/pages/navbar/NavBar.dart';
+import 'package:google_photos_test/widgets/NavBar.dart';
 import 'package:google_photos_test/services/logging.dart';
 import 'package:google_photos_test/widgets/unsorted_image_gallery.dart';
 import 'package:google_photos_test/services/img_requests.dart';
@@ -125,7 +125,7 @@ class HomePageState extends State<HomePage> {
                                     child: CircularProgressIndicator());
                               } else if (snapshot.hasError) {
                                 return const Center(
-                                    child: Text('No photos found.'));
+                                    child: Text('No photos found.1'));
                               } else {
                                 return FutureBuilder<List<String>>(
                                   future: imageIdsFuture,
@@ -136,7 +136,7 @@ class HomePageState extends State<HomePage> {
                                           child: CircularProgressIndicator());
                                     } else if (idsSnapshot.hasError) {
                                       return const Center(
-                                          child: Text('No photos found.'));
+                                          child: Text('No photos found.2'));
                                     } else {
                                       return UnsortedImagesGallery(
                                         imageUrls: snapshot.data!,
